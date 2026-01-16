@@ -167,20 +167,30 @@ const Onboarding = ({ onComplete }) => {
   const handleMBTIAnswer = (dimension) => {
     const newAnswers = [...userData.mbtiAnswers, dimension];
     setUserData({ ...userData, mbtiAnswers: newAnswers });
-    
+
     if (newAnswers.length === 10) {
       // Calculate MBTI from answers
       const counts = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
       newAnswers.forEach(d => counts[d]++);
-      
-      const mbti = 
+
+      const mbti =
         (counts.E > counts.I ? 'E' : 'I') +
         (counts.S > counts.N ? 'S' : 'N') +
         (counts.T > counts.F ? 'T' : 'F') +
         (counts.J > counts.P ? 'J' : 'P');
-      
+
       setUserData({ ...userData, mbti, mbtiAnswers: newAnswers });
-      setStep(step + 1);
+
+      // Go to the correct step after completing MBTI test
+      // Check if we need fecha/año (using current userData values)
+      const stillNeedsSigno = !userData.signo || userData.signo === 'no-se';
+      const stillNeedsGeneracion = !userData.generacion || userData.generacion === 'no-se';
+
+      if (stillNeedsSigno || stillNeedsGeneracion) {
+        setStep(4); // Go to fecha/generacion step
+      } else {
+        setStep(5); // Skip to music preferences
+      }
     }
   };
 
@@ -323,10 +333,6 @@ const Onboarding = ({ onComplete }) => {
     // Step 3: MBTI Test
     if (step === 3 && needsMBTITest) {
       const currentQ = userData.mbtiAnswers.length;
-      if (currentQ >= mbtiQuestions.length) {
-        setStep(needsSigno || needsGeneracion ? 4 : 5);
-        return null;
-      }
 
       return (
         <div className="space-y-6">
