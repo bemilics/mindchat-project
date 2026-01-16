@@ -9,11 +9,14 @@ function App() {
   const [isGeneratingVoices, setIsGeneratingVoices] = useState(false)
   const [generationError, setGenerationError] = useState(null)
 
-  const handleOnboardingComplete = async (data, isDebugMode = false) => {
-    setUserData(data)
+  const [debugMode, setDebugMode] = useState(null) // null | 'full-mock' | 'hybrid'
 
-    // Si es modo debug, usar voces pre-generadas
-    if (isDebugMode) {
+  const handleOnboardingComplete = async (data, mode = null) => {
+    setUserData(data)
+    setDebugMode(mode)
+
+    // Si es modo debug (cualquier tipo), usar voces pre-generadas
+    if (mode === 'full-mock' || mode === 'hybrid') {
       // Importar dinámicamente el perfil debug
       const { debugVoices } = await import('./debugProfile.js')
       setGeneratedVoices(debugVoices)
@@ -63,6 +66,7 @@ function App() {
     setGeneratedVoices(null)
     setIsGeneratingVoices(false)
     setGenerationError(null)
+    setDebugMode(null)
   }
 
   return (
@@ -110,6 +114,7 @@ function App() {
           voices={generatedVoices}
           userData={userData}
           onReset={resetApp}
+          debugMode={debugMode}
         />
       )}
     </div>

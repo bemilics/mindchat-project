@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const Chat = ({ voices: generatedVoices, userData, onReset }) => {
+const Chat = ({ voices: generatedVoices, userData, onReset, debugMode = null }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -57,8 +57,15 @@ const Chat = ({ voices: generatedVoices, userData, onReset }) => {
     scrollToBottom();
   }, [messages]);
 
-  // Generar respuestas de las voces usando el serverless function
+  // Generar respuestas de las voces usando el serverless function o mock (debug mode)
   const generateVoiceResponses = async (userMessage) => {
+    // Si está en modo debug full-mock, usar respuestas mock
+    if (debugMode === 'full-mock') {
+      return generateMockResponses(userMessage);
+    }
+
+    // Si está en modo hybrid o normal, usar API real
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -123,6 +130,103 @@ const Chat = ({ voices: generatedVoices, userData, onReset }) => {
     }
   };
 
+  // Generar respuestas mock para modo debug (no consume API)
+  const generateMockResponses = (userMessage) => {
+    const lowercaseMsg = userMessage.toLowerCase();
+    const responses = [];
+
+    // Detectar palabras clave y generar respuestas relevantes
+    if (lowercaseMsg.includes('mensaje') || lowercaseMsg.includes('escribir') || lowercaseMsg.includes('mandar')) {
+      responses.push(
+        {
+          id: Date.now() + 1,
+          voice: voices.find(v => v.id === 'ansiedad'),
+          text: '¿Y si ya no le interesas? Han pasado como 6 horas desde su último mensaje...',
+          timestamp: new Date(Date.now() + 500)
+        },
+        {
+          id: Date.now() + 2,
+          voice: voices.find(v => v.id === 'logica'),
+          text: '@El Catastrofista relax, hace 2 días te respondió normal. No hay data que sugiera desinterés.',
+          timestamp: new Date(Date.now() + 1500)
+        },
+        {
+          id: Date.now() + 3,
+          voice: voices.find(v => v.id === 'electrochemistry'),
+          text: 'Dale HAZLO YA, el suspense me está matando literally.',
+          timestamp: new Date(Date.now() + 2500)
+        }
+      );
+    } else if (lowercaseMsg.includes('hambre') || lowercaseMsg.includes('comer') || lowercaseMsg.includes('comida')) {
+      responses.push(
+        {
+          id: Date.now() + 1,
+          voice: voices.find(v => v.id === 'fisico'),
+          text: 'Última comida hace 5 horas. Come algo ya.',
+          timestamp: new Date(Date.now() + 500)
+        },
+        {
+          id: Date.now() + 2,
+          voice: voices.find(v => v.id === 'electrochemistry'),
+          text: 'PIZZA o esas galletas que quedaron, lo que sea más rápido!!!',
+          timestamp: new Date(Date.now() + 1500)
+        },
+        {
+          id: Date.now() + 3,
+          voice: voices.find(v => v.id === 'logica'),
+          text: '@El Impulso no, comiste chatarra ayer. Algo con proteína sería más óptimo.',
+          timestamp: new Date(Date.now() + 2500)
+        }
+      );
+    } else if (lowercaseMsg.includes('anxie') || lowercaseMsg.includes('ansied') || lowercaseMsg.includes('preocup')) {
+      responses.push(
+        {
+          id: Date.now() + 1,
+          voice: voices.find(v => v.id === 'ansiedad'),
+          text: '¿Ves? Yo sabía que algo andaba mal... ¿o no??',
+          timestamp: new Date(Date.now() + 500)
+        },
+        {
+          id: Date.now() + 2,
+          voice: voices.find(v => v.id === 'empatia'),
+          text: 'Es válido sentirse así. No te juzgues tanto por estar preocupado.',
+          timestamp: new Date(Date.now() + 1500)
+        },
+        {
+          id: Date.now() + 3,
+          voice: voices.find(v => v.id === 'volicion'),
+          text: 'Respirá. Podés con esto. Enfócate en lo que SÍ podés controlar.',
+          timestamp: new Date(Date.now() + 2500)
+        }
+      );
+    } else {
+      // Respuesta genérica
+      const randomVoices = [...voices].sort(() => Math.random() - 0.5).slice(0, 3);
+      responses.push(
+        {
+          id: Date.now() + 1,
+          voice: randomVoices[0],
+          text: 'Interesante. Déjame pensar en esto...',
+          timestamp: new Date(Date.now() + 500)
+        },
+        {
+          id: Date.now() + 2,
+          voice: randomVoices[1],
+          text: 'Ok pero, ¿esto realmente importa ahora mismo?',
+          timestamp: new Date(Date.now() + 1500)
+        },
+        {
+          id: Date.now() + 3,
+          voice: randomVoices[2],
+          text: '@' + randomVoices[1].shortName + ' sí importa, dejalo expresarse.',
+          timestamp: new Date(Date.now() + 2500)
+        }
+      );
+    }
+
+    return responses;
+  };
+
   const handleSendMessage = async () => {
     if (!inputText.trim() || messagesRemaining <= 0) return;
 
@@ -172,12 +276,28 @@ const Chat = ({ voices: generatedVoices, userData, onReset }) => {
       <div className="bg-gray-800 border-b border-gray-700 p-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
-              MINDCHAT
-            </h1>
-            <p className="text-sm text-gray-400">Tu group chat interno</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+                MINDCHAT
+              </h1>
+              {debugMode === 'full-mock' && (
+                <span className="text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500 px-2 py-1 rounded font-mono">
+                  🐛 FULL MOCK
+                </span>
+              )}
+              {debugMode === 'hybrid' && (
+                <span className="text-xs bg-purple-500/20 text-purple-400 border border-purple-500 px-2 py-1 rounded font-mono">
+                  🔄 HYBRID
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-gray-400">
+              {debugMode === 'full-mock' && 'Modo debug - Perfil preset + respuestas mock (no consume API)'}
+              {debugMode === 'hybrid' && 'Modo debug - Perfil preset + respuestas reales (consume API)'}
+              {!debugMode && 'Tu group chat interno'}
+            </p>
           </div>
-          
+
           <div className="text-right">
             <div className="text-sm text-gray-400">Mensajes restantes</div>
             <div className={`text-2xl font-bold ${messagesRemaining <= 10 ? 'text-red-400' : 'text-green-400'}`}>

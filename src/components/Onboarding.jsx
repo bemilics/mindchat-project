@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 const Onboarding = ({ onComplete }) => {
   const [step, setStep] = useState(1);
+  const [showDebugMenu, setShowDebugMenu] = useState(false);
   const [userData, setUserData] = useState({
     // Manual inputs
     mbti: '',
@@ -219,10 +220,12 @@ const Onboarding = ({ onComplete }) => {
     }
   };
 
-  const handleDebugMode = async () => {
+  const handleDebugMode = async (mode) => {
     // Cargar perfil debug
     const { debugUserData } = await import('../debugProfile.js');
-    onComplete(debugUserData, true); // true = isDebugMode
+    // mode: 'full-mock' | 'hybrid'
+    onComplete(debugUserData, mode);
+    setShowDebugMenu(false);
   };
 
   const renderStep = () => {
@@ -264,12 +267,71 @@ const Onboarding = ({ onComplete }) => {
           </button>
 
           {isDev && (
-            <button
-              onClick={handleDebugMode}
-              className="w-full max-w-xs mx-auto bg-gray-800 hover:bg-gray-700 text-gray-400 py-2 px-4 rounded-lg text-sm font-medium transition border border-gray-700"
-            >
-              🐛 Debug Mode (Skip to Chat)
-            </button>
+            <>
+              <button
+                onClick={() => setShowDebugMenu(true)}
+                className="w-full max-w-xs mx-auto bg-gray-800 hover:bg-gray-700 text-gray-400 py-2 px-4 rounded-lg text-sm font-medium transition border border-gray-700"
+              >
+                🐛 Debug Mode (Skip to Chat)
+              </button>
+
+              {/* Debug Menu Modal */}
+              {showDebugMenu && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                  <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-gray-700">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-white">🐛 Modo Debug</h3>
+                        <p className="text-sm text-gray-400">
+                          Selecciona cómo quieres usar el modo debug:
+                        </p>
+                      </div>
+
+                      <div className="space-y-3">
+                        {/* Opción 1: Full Mock */}
+                        <button
+                          onClick={() => handleDebugMode('full-mock')}
+                          className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white p-4 rounded-lg text-left transition"
+                        >
+                          <div className="font-bold mb-1">
+                            💾 Full Mock (Sin API)
+                          </div>
+                          <div className="text-sm text-white/80">
+                            Perfil preset + respuestas mock
+                          </div>
+                          <div className="text-xs text-white/60 mt-1">
+                            ✅ No consume créditos • Respuestas instantáneas
+                          </div>
+                        </button>
+
+                        {/* Opción 2: Hybrid */}
+                        <button
+                          onClick={() => handleDebugMode('hybrid')}
+                          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white p-4 rounded-lg text-left transition"
+                        >
+                          <div className="font-bold mb-1">
+                            🔄 Hybrid (Con API)
+                          </div>
+                          <div className="text-sm text-white/80">
+                            Perfil preset + respuestas reales de Claude
+                          </div>
+                          <div className="text-xs text-white/60 mt-1">
+                            ⚠️ Consume créditos • Respuestas personalizadas
+                          </div>
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => setShowDebugMenu(false)}
+                        className="w-full bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded-lg text-sm transition"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           <p className="text-xs text-gray-500 mt-8">
