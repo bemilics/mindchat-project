@@ -219,9 +219,23 @@ const Onboarding = ({ onComplete }) => {
     }
   };
 
+  const handleDebugMode = async () => {
+    // Cargar perfil debug
+    const { debugUserData } = await import('../debugProfile.js');
+    onComplete(debugUserData, true); // true = isDebugMode
+  };
+
   const renderStep = () => {
     // Step 1: Welcome
     if (step === 1) {
+      // Debug mode disponible en:
+      // 1. localhost
+      // 2. Vercel preview/develop (con variable de entorno)
+      // 3. NUNCA en producción
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const isDebugEnabled = import.meta.env.VITE_ENABLE_DEBUG === 'true';
+      const isDev = isLocalhost || isDebugEnabled;
+
       return (
         <div className="space-y-6 text-center">
           <div className="space-y-2">
@@ -232,7 +246,7 @@ const Onboarding = ({ onComplete }) => {
               Tu group chat interno
             </p>
           </div>
-          
+
           <div className="space-y-4 text-left max-w-md mx-auto">
             <p className="text-gray-300">
               Vamos a crear las voces en tu cabeza, pero personalizadas para ti.
@@ -248,6 +262,15 @@ const Onboarding = ({ onComplete }) => {
           >
             Empezar
           </button>
+
+          {isDev && (
+            <button
+              onClick={handleDebugMode}
+              className="w-full max-w-xs mx-auto bg-gray-800 hover:bg-gray-700 text-gray-400 py-2 px-4 rounded-lg text-sm font-medium transition border border-gray-700"
+            >
+              🐛 Debug Mode (Skip to Chat)
+            </button>
+          )}
 
           <p className="text-xs text-gray-500 mt-8">
             Disclaimer: Esto es para entretenimiento. Si estás en crisis, habla con un profesional.

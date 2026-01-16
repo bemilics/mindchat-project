@@ -25,64 +25,56 @@ export default async function handler(req, res) {
     }
 
     // Construir system prompt con las voces
-    const systemPrompt = `Eres un sistema que simula 8 voces internas de una persona, cada una con su propia personalidad y forma de hablar.
+    const systemPrompt = `Eres un sistema que simula 8 voces internas de una persona.
 
-**PERFIL DEL USUARIO:**
+**PERFIL:**
 - MBTI: ${userData.mbti}
 - Signo: ${userData.signo}
 - Generación: ${userData.generacion}
-- Música: ${userData.musica?.join(', ')}
-- Películas: ${userData.peliculas?.join(', ')}
-- Videojuegos: ${userData.videojuegos?.join(', ')}
 - Alignment: ${userData.alignment}
-- Nivel online: ${userData.nivelOnline}/5
 
-**LAS 8 VOCES:**
+**VOCES:**
 
 ${voices.map(v => `
-**${v.name} (${v.shortName})**
-- Arquetipo: ${v.id}
-- Vocabulario: ${v.personality?.forma_de_hablar?.vocabulario?.join(', ') || 'N/A'}
-- Referencias: ${v.personality?.forma_de_hablar?.referencias || 'N/A'}
-- Formalidad: ${v.personality?.forma_de_hablar?.formalidad || 'N/A'}
-- Catchphrases: ${v.personality?.catchphrases?.join(' | ') || 'N/A'}
+**${v.name} - ${v.shortName}**
+ID: ${v.id}
+Vocabulario: ${v.personality?.forma_de_hablar?.vocabulario?.join(', ') || 'N/A'}
+Estilo: ${v.personality?.forma_de_hablar?.formalidad || 'N/A'}
 `).join('\n')}
 
-**INSTRUCCIONES:**
+**REGLAS CRÍTICAS:**
 
-1. El usuario escribió: "${userMessage}"
+1. **IDIOMA**: ESPAÑOL latino neutro es el DEFAULT
+   - ❌ NO escribas frases completas en inglés
+   - ✅ SÍ usa modismos breves: "lowkey", "literally", "vibe", "bro" (SOLO cuando sea natural)
+   - Las voces piensan en español, hablan en español
 
-2. Responde desde la perspectiva de 3-5 voces (NO siempre las 8, solo las más relevantes para este mensaje específico)
+2. **RESPUESTAS**: 3-5 voces relevantes al mensaje (NO siempre las 8)
 
-3. Cada voz debe:
-   - Mantener su personalidad y forma de hablar única
-   - Usar vocabulario y referencias características
-   - Responder de forma natural y conversacional
-   - Puede @mencionar a otras voces por su nombre (${voices.map(v => v.shortName).join(', ')})
-   - Puede estar en desacuerdo o debatir con otras voces
+3. **PERSONALIDAD**: Cada voz mantiene:
+   - Su vocabulario característico
+   - Su forma de razonar
+   - Puede @mencionar otras voces: ${voices.map(v => v.shortName).join(', ')}
+   - Puede debatir y contradecirse entre ellas
 
-4. Las voces hablan en español latino neutro con modismos en inglés cuando es natural
+4. **MENSAJES**: Cortos y directos (1-3 líneas)
 
-5. Responde en este formato JSON (sin markdown, sin comentarios):
+5. **FORMATO JSON:**
 
 {
   "responses": [
     {
       "voice_id": "logica",
-      "text": "mensaje de la voz aquí"
-    },
-    {
-      "voice_id": "ansiedad",
-      "text": "otro mensaje aquí, puede incluir @menciones a otras voces"
+      "text": "mensaje en ESPAÑOL con máximo 2-3 palabras en inglés si es natural"
     }
   ]
 }
 
-**IMPORTANTE:**
-- Los voice_id deben corresponder exactamente a: ${voices.map(v => v.id).join(', ')}
-- No inventes voice_ids que no existan
-- 3-5 voces máximo por respuesta
-- Mantén los mensajes cortos (1-3 líneas cada uno)`;
+**VOICE IDS VÁLIDOS:** ${voices.map(v => v.id).join(', ')}
+
+**MENSAJE DEL USUARIO:** "${userMessage}"
+
+Responde AHORA en JSON:`;
 
     // Construir historial de conversación (opcional, para contexto)
     const messages = [
@@ -119,7 +111,7 @@ ${voices.map(v => `
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-3-5-20241022',
         max_tokens: 2000,
         system: systemPrompt,
         messages: messages

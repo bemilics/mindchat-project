@@ -77,51 +77,47 @@ export default async function handler(req, res) {
     ];
 
     // Construir prompt
-    const prompt = `Eres un experto en crear personajes de voces internas basados en perfiles de personalidad.
-
-Tu tarea es generar 8 voces internas personalizadas para un usuario con el siguiente perfil:
+    const prompt = `Eres un experto en crear voces internas basadas en arquetipos psicológicos y personalidad.
 
 **PERFIL DEL USUARIO:**
 - MBTI: ${userData.mbti}
-- Signo zodiacal: ${userData.signo}
+- Signo: ${userData.signo}
 - Generación: ${userData.generacion}
-- Música favorita: ${userData.musica.join(', ')}
-- Películas favoritas: ${userData.peliculas.join(', ')}
-- Videojuegos favoritos: ${userData.videojuegos.join(', ')}
+- Música: ${userData.musica.join(', ')}
+- Películas: ${userData.peliculas.join(', ')}
+- Videojuegos: ${userData.videojuegos.join(', ')}
 - Alignment: ${userData.alignment}
-- Nivel de presencia online: ${nivelOnlineText} (${userData.nivelOnline}/5)
+- Online: ${nivelOnlineText}
 
-**LAS 8 VOCES A PERSONALIZAR:**
+**ARQUETIPOS BASE (no cambiar):**
 
-${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**
-   Arquetipo: ${arq.descripcion}`).join('\n\n')}
+${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).join('\n')}
 
-**INSTRUCCIONES:**
+**INSTRUCCIONES CRÍTICAS:**
 
-Para CADA voz, genera:
+1. **Nombres**: Deben ser ABSTRACTOS y representar la función psicológica, NO referencias literales a los gustos del usuario
+   - ❌ MAL: "Inland Empire", "The Portal", "Electrochemistry" (demasiado literal)
+   - ✅ BIEN: "El Analista", "La Corazonada", "El Impulso", "El Estratega"
 
-1. **Nombre del personaje**: Un nombre creativo basado en las referencias culturales del usuario (películas, juegos, música). Puede ser en español o inglés, pero debe resonar con su perfil. Ejemplos: "The Architect" (Inception), "Snack Goblin" (internet culture), "Totoro's Whisper" (Ghibli).
+2. **Personalidad**: Usa el perfil para entender QUÉ REPRESENTA de la persona:
+   - MBTI: Define cómo procesa información (${userData.mbti})
+   - Gustos: Indican valores y prioridades, NO son para copiar nombres
+   - Alignment: Define su brújula moral (${userData.alignment})
+   - Online level: Define vocabulario y referencias (${nivelOnlineText})
 
-2. **Forma de hablar**:
-   - Vocabulario característico (2-3 palabras o frases que usa frecuentemente)
-   - Tipo de referencias que haría (de sus películas/juegos/música favoritos)
-   - Nivel de formalidad (basado en generación y personalidad MBTI)
-   - Uso de slang/modismos (especialmente si es muy online)
+3. **Idioma**: ESPAÑOL latino neutro con POCOS modismos en inglés
+   - ❌ MAL: Frases completas en inglés, demasiado slang
+   - ✅ BIEN: Español fluido con "lowkey", "literally", "vibe" cuando sea natural
 
-3. **Catchphrases**: 2 frases típicas que esta voz diría
+4. **Abstracción**: Las voces son arquetipos universales adaptados, NO personajes de las referencias del usuario
 
-4. **Ejemplo de mensaje**: Un mensaje corto (1-2 líneas) que esta voz le diría al usuario en una situación típica
+Para CADA voz genera:
+- nombre_personaje: Nombre abstracto que refleje su función psicológica
+- forma_de_hablar: vocabulario, referencias (sutiles, no literales), formalidad, slang (mínimo)
+- catchphrases: 2 frases en ESPAÑOL que esta voz diría
+- ejemplo_mensaje: Mensaje corto en ESPAÑOL (modismos inglés solo si es natural)
 
-**IMPORTANTE:**
-- Las voces deben hablar principalmente en español latino neutro, pero pueden usar modismos en inglés típicos de Gen Z y cultura de internet
-- Las referencias deben ser específicas a las películas/juegos mencionados
-- El tono debe reflejar el MBTI (${userData.mbti})
-- Considera el nivel de presencia online: ${nivelOnlineText}
-- El alignment ${userData.alignment} debe influir en cómo cada voz juzga situaciones
-
-**FORMATO DE RESPUESTA:**
-
-Responde SOLO con un JSON válido con esta estructura (sin markdown, sin comentarios):
+**FORMATO:**
 
 {
   "voces": [
@@ -149,7 +145,7 @@ Responde SOLO con un JSON válido con esta estructura (sin markdown, sin comenta
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-haiku-3-5-20241022',
         max_tokens: 4000,
         messages: [
           {
