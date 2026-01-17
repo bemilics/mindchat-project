@@ -55,17 +55,29 @@ Estilo: ${v.personality?.forma_de_hablar?.formalidad || 'N/A'}
    - ✅ SÍ usa modismos breves: "lowkey", "literally", "vibe", "bro" (SOLO cuando sea natural)
    - Las voces piensan en español, hablan en español
 
-2. **RESPUESTAS**: 3-5 voces relevantes al mensaje (NO siempre las 8)
+2. **CANTIDAD DE RESPUESTAS**: 6-8 voces deben responder (la mayoría o todas)
+   - Genera conversaciones dinámicas donde varias voces participan
+   - Está bien que todas las 8 voces opinen si el tema es relevante para todas
 
 3. **PERSONALIDAD**: Cada voz mantiene:
    - Su vocabulario característico
    - Su forma de razonar
-   - Puede @mencionar otras voces: ${voices.map(v => v.shortName).join(', ')}
-   - Puede debatir y contradecirse entre ellas
+   - DEBE @mencionar otras voces frecuentemente: ${voices.map(v => v.shortName).join(', ')}
+   - DEBE debatir y contradecirse entre ellas activamente
+   - Cada voz puede responder a lo que otra voz dijo
 
-4. **MENSAJES**: Cortos y directos (1-3 líneas)
+4. **LONGITUD DE MENSAJES**: Más desarrollados y conversacionales (2-4 líneas cada uno)
+   - Las voces deben elaborar sus puntos, no solo frases cortísimas
+   - Pueden incluir argumentos, ejemplos, o contra-argumentos
+   - Está bien que sean más extensas si están debatiendo o construyendo sobre lo que otra voz dijo
 
-5. **FORMATO JSON:**
+5. **INTERACCIONES**: Las voces deben interactuar entre sí
+   - Usa @menciones para dirigirse a otras voces
+   - Ejemplo: "@Axioma tiene razón pero...", "@Doomscroll estás exagerando de nuevo", "@Covenant ok pero necesito mi dopamina NOW"
+   - Crea debates, discusiones y conversaciones entre las voces
+   - No todas deben estar de acuerdo, el conflicto es interesante
+
+6. **FORMATO JSON:**
 
 {
   "responses": [
@@ -108,21 +120,38 @@ Responde AHORA en JSON:`;
       messages[0].content = `CONTEXTO DE CONVERSACIÓN RECIENTE:\n${historyContext}\n\nNUEVO MENSAJE DEL USUARIO: "${userMessage}"`;
     }
 
-    // Llamar a Claude API
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: modelName,
-        max_tokens: 2000,
-        system: systemPrompt,
-        messages: messages
-      })
-    });
+    // Llamar a Claude API con timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 segundos timeout
+
+    try {
+      var response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: modelName,
+          max_tokens: 4000,
+          system: systemPrompt,
+          messages: messages
+        }),
+        signal: controller.signal
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        return res.status(504).json({
+          error: 'La solicitud a Claude API tomó demasiado tiempo',
+          timeout: true
+        });
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errorData = await response.json();

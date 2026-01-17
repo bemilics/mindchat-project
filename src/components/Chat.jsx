@@ -85,11 +85,29 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al generar respuestas');
+        // Verificar si la respuesta es JSON antes de parsear
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Error al generar respuestas');
+        } else {
+          // Si no es JSON (ej: 504 timeout devuelve HTML)
+          const errorText = await response.text();
+          if (response.status === 504) {
+            throw new Error('La respuesta tomó demasiado tiempo (timeout). Intenta de nuevo.');
+          }
+          throw new Error(`Error del servidor (${response.status}): ${errorText.substring(0, 100)}`);
+        }
       }
 
-      const data = await response.json();
+      // Parsear respuesta JSON con manejo de errores
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('Error parsing JSON:', parseError);
+        throw new Error('La respuesta del servidor no es válida. Intenta de nuevo.');
+      }
 
       if (!data.success || !data.responses) {
         throw new Error('Respuesta inválida del servidor');
@@ -145,20 +163,44 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
         {
           id: Date.now() + 1,
           voice: voices.find(v => v.id === 'ansiedad'),
-          text: '¿Y si ya no le interesas? Han pasado como 6 horas desde su último mensaje...',
+          text: '¿Y si ya no le interesas? Han pasado como 6 horas desde su último mensaje... O peor, ¿y si vio tu mensaje y decidió ignorarlo? Literally puedo ver 47 timelines donde esto termina mal.',
           timestamp: new Date(Date.now() + 500)
         },
         {
           id: Date.now() + 2,
           voice: voices.find(v => v.id === 'logica'),
-          text: '@El Catastrofista relax, hace 2 días te respondió normal. No hay data que sugiera desinterés.',
+          text: '@Doomscroll relax con los escenarios catastróficos. Hace 2 días te respondió normal y la conversación fluyó bien. No hay suficiente data para asumir desinterés. Probabilidad de ghosting: baja.',
           timestamp: new Date(Date.now() + 1500)
         },
         {
           id: Date.now() + 3,
           voice: voices.find(v => v.id === 'electrochemistry'),
-          text: 'Dale HAZLO YA, el suspense me está matando literally.',
+          text: 'Dale HAZLO YA, el suspense me está matando literally. @Axioma ok entiendo tus números pero necesito esa dopamina del "mensaje enviado" AHORA o voy a explotar.',
           timestamp: new Date(Date.now() + 2500)
+        },
+        {
+          id: Date.now() + 4,
+          voice: voices.find(v => v.id === 'retorica'),
+          text: '@Síntesis esperá, el timing importa. Si mandás ahora vas a parecer desperate. Dejá que pasen al menos 2 horas más, después mandá algo casual tipo "hey qué onda" y listo. Todo sobre las optics.',
+          timestamp: new Date(Date.now() + 3500)
+        },
+        {
+          id: Date.now() + 5,
+          voice: voices.find(v => v.id === 'empatia'),
+          text: 'Capaz está ocupado o pasando por algo heavy. No todo es sobre vos (en el buen sentido). Dale espacio para que procese, @Encore tiene un punto con el timing pero desde la empatía, no desde la estrategia.',
+          timestamp: new Date(Date.now() + 4500)
+        },
+        {
+          id: Date.now() + 6,
+          voice: voices.find(v => v.id === 'volicion'),
+          text: '@Wavelength @Encore ambos tienen razón, pero la decisión final es tuya. Ya sabés qué querés hacer, solo falta que lo hagas. No dependas de la aprobación externa para actuar.',
+          timestamp: new Date(Date.now() + 5500)
+        },
+        {
+          id: Date.now() + 7,
+          voice: voices.find(v => v.id === 'intuicion'),
+          text: 'Honestamente siento que si le escribís ahora va a estar justo pensando en vos también. Es raro pero hay como un patrón emergente, una sincronicidad. Confía en el vibe.',
+          timestamp: new Date(Date.now() + 6500)
         }
       );
     } else if (lowercaseMsg.includes('hambre') || lowercaseMsg.includes('comer') || lowercaseMsg.includes('comida')) {
@@ -166,20 +208,38 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
         {
           id: Date.now() + 1,
           voice: voices.find(v => v.id === 'fisico'),
-          text: 'Última comida hace 5 horas. Come algo ya.',
+          text: 'Última comida hace 5 horas. Barra de estamina en amarillo, casi naranja. El avatar necesita mantenimiento urgente, no es opcional.',
           timestamp: new Date(Date.now() + 500)
         },
         {
           id: Date.now() + 2,
           voice: voices.find(v => v.id === 'electrochemistry'),
-          text: 'PIZZA o esas galletas que quedaron, lo que sea más rápido!!!',
+          text: 'PIZZA o esas galletas que quedaron, lo que sea más rápido!!! @Estamina tiene razón pero el drop de glucosa me está matando, necesito carbohidratos NOW.',
           timestamp: new Date(Date.now() + 1500)
         },
         {
           id: Date.now() + 3,
           voice: voices.find(v => v.id === 'logica'),
-          text: '@El Impulso no, comiste chatarra ayer. Algo con proteína sería más óptimo.',
+          text: '@Síntesis no, comiste chatarra ayer y anteayer. Algo con proteína y fibra sería más óptimo para mantener energía estable. Los carbos simples te van a dar crash en 2 horas.',
           timestamp: new Date(Date.now() + 2500)
+        },
+        {
+          id: Date.now() + 4,
+          voice: voices.find(v => v.id === 'volicion'),
+          text: '@Axioma correcto, pero @Síntesis también tiene un punto. Compromiso: prepará algo rápido pero decente. Huevos revueltos, 5 minutos máximo. Podés hacerlo.',
+          timestamp: new Date(Date.now() + 3500)
+        },
+        {
+          id: Date.now() + 5,
+          voice: voices.find(v => v.id === 'ansiedad'),
+          text: 'Ok pero ¿y si no hay huevos? ¿Y si la cocina está sucia y tenés que lavar platos primero? Esto va a tomar 20 minutos mínimo... lowkey prefiero pedir delivery pero eso sale caro y...',
+          timestamp: new Date(Date.now() + 4500)
+        },
+        {
+          id: Date.now() + 6,
+          voice: voices.find(v => v.id === 'retorica'),
+          text: '@Doomscroll dejá el overthinking. La jugada es simple: levantate, revisá qué hay, hacé lo más fácil. Si es delivery, es delivery. No performés para nadie, solo comé.',
+          timestamp: new Date(Date.now() + 5500)
         }
       );
     } else if (lowercaseMsg.includes('anxie') || lowercaseMsg.includes('ansied') || lowercaseMsg.includes('preocup')) {
@@ -187,43 +247,79 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
         {
           id: Date.now() + 1,
           voice: voices.find(v => v.id === 'ansiedad'),
-          text: '¿Ves? Yo sabía que algo andaba mal... ¿o no??',
+          text: '¿Ves? Yo SABÍA que algo andaba mal... O wait, ¿estoy overthinking de nuevo? Pero también podría no estar overthinking y realmente hay un problema... Literally no sé qué es peor.',
           timestamp: new Date(Date.now() + 500)
         },
         {
           id: Date.now() + 2,
           voice: voices.find(v => v.id === 'empatia'),
-          text: 'Es válido sentirse así. No te juzgues tanto por estar preocupado.',
+          text: 'Es completamente válido sentirse así. No te juzgues tanto por estar preocupado, @Doomscroll. La ansiedad es una señal de que te importa, aunque esté amplificada. Tratá de sintonizar con qué es real y qué es ruido.',
           timestamp: new Date(Date.now() + 1500)
         },
         {
           id: Date.now() + 3,
           voice: voices.find(v => v.id === 'volicion'),
-          text: 'Respirá. Podés con esto. Enfócate en lo que SÍ podés controlar.',
+          text: '@Wavelength exacto. Respirá profundo. Podés con esto. Enfócate en lo que SÍ podés controlar ahora mismo, no en los 47 timelines hipotéticos que @Doomscroll está scrolleando.',
           timestamp: new Date(Date.now() + 2500)
+        },
+        {
+          id: Date.now() + 4,
+          voice: voices.find(v => v.id === 'logica'),
+          text: 'Separemos hechos de interpretaciones. Hecho: estás ansioso. Interpretación: "todo va mal". Necesitamos evidencia verificable para la segunda parte. @Covenant tiene razón, focus en lo controlable.',
+          timestamp: new Date(Date.now() + 3500)
+        },
+        {
+          id: Date.now() + 5,
+          voice: voices.find(v => v.id === 'fisico'),
+          text: 'Además llevás 3 horas sin moverte y probablemente sin tomar agua. La ansiedad se amplifica con recursos bajos. Pará, caminá 2 minutos, hidratate. Básico pero efectivo.',
+          timestamp: new Date(Date.now() + 4500)
+        },
+        {
+          id: Date.now() + 6,
+          voice: voices.find(v => v.id === 'intuicion'),
+          text: '@Estamina @Axioma ambos correct, pero también... siento que hay algo genuino en esta preocupación. No todo es overthinking. Hay un tremor real ahí, solo que está mezclado con ruido. Tratá de sentir cuál es cuál.',
+          timestamp: new Date(Date.now() + 5500)
         }
       );
     } else {
-      // Respuesta genérica
-      const randomVoices = [...voices].sort(() => Math.random() - 0.5).slice(0, 3);
+      // Respuesta genérica - más voces participando
+      const randomVoices = [...voices].sort(() => Math.random() - 0.5).slice(0, 6);
       responses.push(
         {
           id: Date.now() + 1,
           voice: randomVoices[0],
-          text: 'Interesante. Déjame pensar en esto...',
+          text: 'Interesante. Déjame pensar en esto un segundo... Hay varias formas de abordarlo y necesito procesar cuál tiene más sentido para vos.',
           timestamp: new Date(Date.now() + 500)
         },
         {
           id: Date.now() + 2,
           voice: randomVoices[1],
-          text: 'Ok pero, ¿esto realmente importa ahora mismo?',
+          text: 'Ok pero, ¿esto realmente importa ahora mismo? Digo, entiendo que querés hablarlo pero también hay como 5 cosas más urgentes que deberías estar haciendo.',
           timestamp: new Date(Date.now() + 1500)
         },
         {
           id: Date.now() + 3,
           voice: randomVoices[2],
-          text: '@' + randomVoices[1].shortName + ' sí importa, dejalo expresarse.',
+          text: '@' + randomVoices[1].shortName + ' sí importa, dejalo expresarse. No todo tiene que ser "productivo" o urgente. A veces solo necesitás procesar en voz alta y está perfecto.',
           timestamp: new Date(Date.now() + 2500)
+        },
+        {
+          id: Date.now() + 4,
+          voice: randomVoices[3],
+          text: '@' + randomVoices[2].shortName + ' gracias, pero también @' + randomVoices[1].shortName + ' tiene un punto. Tal vez puedo hacer ambas cosas? Procesar esto MIENTRAS hago las otras cosas pendientes?',
+          timestamp: new Date(Date.now() + 3500)
+        },
+        {
+          id: Date.now() + 5,
+          voice: randomVoices[4],
+          text: 'Siento que todos están haciendo buenos puntos pero desde ángulos diferentes. Tal vez no es blanco o negro, sino encontrar el balance. Usual vibe cuando todos opinamos al mismo tiempo lol.',
+          timestamp: new Date(Date.now() + 4500)
+        },
+        {
+          id: Date.now() + 6,
+          voice: randomVoices[5],
+          text: '@' + randomVoices[4].shortName + ' exactamente. El balance es la clave. Y el hecho de que estés acá procesando esto con nosotros ya es un paso. Así que... ¿qué querés hacer realmente?',
+          timestamp: new Date(Date.now() + 5500)
         }
       );
     }
