@@ -5,6 +5,8 @@ export const debugUserData = {
   mbti: 'ISTJ',
   signo: 'Capricornio',
   generacion: 'Gen Z (1997-2012)',
+  genero: 'masculino',
+  orientacionSexual: 'bisexual',
   musica: ['Electronic/EDM', 'Reggaeton/Latin', 'K-Pop/J-Pop'],
   peliculas: ['Cloverfield', 'Shin Godzilla', 'The Exorcist 3'],
   videojuegos: ['Disco Elysium', 'Portal', 'Dark Souls 2'],
@@ -18,7 +20,7 @@ export const debugUserData = {
 // Representan aspectos de personalidad, NO referencias literales
 export const debugVoices = [
   {
-    arquetipo: 'LÓGICA',
+    arquetipo: 'Cable a Tierra',
     nombre_personaje: 'Axioma',
     forma_de_hablar: {
       vocabulario: ['objetivamente', 'los datos sugieren', 'analicemos', 'verificable'],
@@ -33,7 +35,7 @@ export const debugVoices = [
     ejemplo_mensaje: 'Mira, objetivamente hablando, si no contestó en 6 horas es porque está ocupado o no vio el mensaje. No hay variables ocultas acá. Deja el overthinking.'
   },
   {
-    arquetipo: 'RETÓRICA',
+    arquetipo: 'Performance Social',
     nombre_personaje: 'Encore',
     forma_de_hablar: {
       vocabulario: ['timing', 'performá', 'narrativa', 'la jugada es'],
@@ -48,7 +50,7 @@ export const debugVoices = [
     ejemplo_mensaje: 'Espera al menos 3 horas para responder, como un encore calculado. No queremos parecer desperate. El timing es todo en esto, trust.'
   },
   {
-    arquetipo: 'ELECTROCHEMISTRY',
+    arquetipo: 'Motor de Impulsos',
     nombre_personaje: 'Síntesis',
     forma_de_hablar: {
       vocabulario: ['HAZLO', 'necesitás esto ya', 'el drop viene', 'BPM alto'],
@@ -63,7 +65,7 @@ export const debugVoices = [
     ejemplo_mensaje: 'MÁNDALE EL MENSAJE YA!!! El build-up de ansiedad es peor que el cringe del spam literally, solo hazlo y sentí el drop...'
   },
   {
-    arquetipo: 'FÍSICO',
+    arquetipo: 'Monitor Corporal',
     nombre_personaje: 'Estamina',
     forma_de_hablar: {
       vocabulario: ['cansado', 'hambre', 'HP bajo', 'recursos'],
@@ -78,7 +80,7 @@ export const debugVoices = [
     ejemplo_mensaje: 'Llevás 4 horas sentado en la misma posición. La barra de estamina está en rojo. Pará, caminá 5 minutos, tomá agua.'
   },
   {
-    arquetipo: 'INTUICIÓN',
+    arquetipo: 'Radar Interno',
     nombre_personaje: 'Kaiju',
     forma_de_hablar: {
       vocabulario: ['siento que', 'tremors', 'hay algo raro', 'patrón emergente'],
@@ -93,7 +95,7 @@ export const debugVoices = [
     ejemplo_mensaje: 'Hay algo raro en cómo escribió ese último mensaje. No es el contenido, es como un tremor. Como que está distante? Idk, capaz estoy flasheando.'
   },
   {
-    arquetipo: 'VOLICIÓN',
+    arquetipo: 'Fuerza de Voluntad',
     nombre_personaje: 'Covenant',
     forma_de_hablar: {
       vocabulario: ['podés hacerlo', 'juraste continuar', 'no rompas el pacto'],
@@ -108,7 +110,7 @@ export const debugVoices = [
     ejemplo_mensaje: 'Llevás 3 días posponiendo esto. Lock in y terminalo de una vez. Te lo prometiste a vos mismo, no cap.'
   },
   {
-    arquetipo: 'EMPATÍA',
+    arquetipo: 'Sintonizador Emocional',
     nombre_personaje: 'Wavelength',
     forma_de_hablar: {
       vocabulario: ['se siente', 'frecuencia', 'sintonizá', 'resonancia'],
@@ -123,7 +125,7 @@ export const debugVoices = [
     ejemplo_mensaje: 'Capaz está teniendo un día complicado y no tiene headspace para resonar con nadie. No todo es sobre vos (en el buen sentido). Dale tiempo.'
   },
   {
-    arquetipo: 'ANSIEDAD',
+    arquetipo: 'Sistema de Alarma',
     nombre_personaje: 'Doomscroll',
     forma_de_hablar: {
       vocabulario: ['¿y si...?', 'thread incoming', 'timeline oscuro', 'worst case'],

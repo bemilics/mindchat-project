@@ -38,47 +38,47 @@ export default async function handler(req, res) {
     ];
     const nivelOnlineText = nivelOnlineTexts[userData.nivelOnline - 1];
 
-    // Arquetipos base
+    // Arquetipos base (nombres descriptivos, NO inspirados en Disco Elysium)
     const arquetipos = [
       {
         id: 'logica',
-        nombre: 'LÓGICA',
-        descripcion: 'Análisis racional, causa-efecto, problem solving. Detective analítico.'
+        nombre: 'Cable a Tierra',
+        descripcion: 'Análisis racional, causa-efecto, problem solving. Pensamiento lógico y verificable.'
       },
       {
         id: 'retorica',
-        nombre: 'RETÓRICA',
-        descripcion: 'Cómo comunicar, performance social, qué decir y cómo. Social strategist.'
+        nombre: 'Performance Social',
+        descripcion: 'Cómo comunicar, timing, narrativa social. Qué decir y cómo performarlo.'
       },
       {
         id: 'electrochemistry',
-        nombre: 'ELECTROCHEMISTRY',
-        descripcion: 'Impulsos, cravings, "hazlo ya", dopamina, placer/dolor. Hedonist demon.'
+        nombre: 'Motor de Impulsos',
+        descripcion: 'Impulsos, cravings, "hazlo ya", dopamina, urgencia. Gratificación inmediata.'
       },
       {
         id: 'fisico',
-        nombre: 'FÍSICO',
-        descripcion: 'Hambre, cansancio, dolor, necesidades básicas del cuerpo. Body status monitor.'
+        nombre: 'Monitor Corporal',
+        descripcion: 'Hambre, cansancio, dolor, necesidades físicas básicas. Estado del cuerpo.'
       },
       {
         id: 'intuicion',
-        nombre: 'INTUICIÓN',
-        descripcion: 'Gut feelings, vibes, creatividad, conexiones raras. Mystical weirdo.'
+        nombre: 'Radar Interno',
+        descripcion: 'Gut feelings, vibes, conexiones inexplicables. Lo que se siente pero no se ve.'
       },
       {
         id: 'volicion',
-        nombre: 'VOLICIÓN',
-        descripcion: 'Willpower, autodisciplina, resistencia, "tú puedes". Inner coach.'
+        nombre: 'Fuerza de Voluntad',
+        descripcion: 'Disciplina, resistencia, compromiso interno. "Tú puedes hacerlo".'
       },
       {
         id: 'empatia',
-        nombre: 'EMPATÍA',
-        descripcion: 'Leer emociones propias y ajenas, sensibilidad social. Emotional intelligence.'
+        nombre: 'Sintonizador Emocional',
+        descripcion: 'Leer emociones propias y ajenas, sintonizar con otros. Inteligencia emocional.'
       },
       {
         id: 'ansiedad',
-        nombre: 'ANSIEDAD',
-        descripcion: 'Overthinking, worst-case scenarios, preocupaciones. Catastrophic thinker.'
+        nombre: 'Sistema de Alarma',
+        descripcion: 'Overthinking, worst-case scenarios, preocupaciones constantes. Detección de amenazas.'
       }
     ];
 
@@ -136,7 +136,7 @@ Para CADA voz genera:
 {
   "voces": [
     {
-      "arquetipo": "LÓGICA",
+      "arquetipo": "Cable a Tierra",
       "nombre_personaje": "...",
       "forma_de_hablar": {
         "vocabulario": ["...", "...", "..."],

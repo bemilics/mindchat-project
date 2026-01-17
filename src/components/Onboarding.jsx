@@ -10,14 +10,16 @@ const Onboarding = ({ onComplete }) => {
     mbti: '',
     signo: '',
     generacion: '',
-    
+    genero: '',
+    orientacionSexual: '',
+
     // MBTI test answers (if needed)
     mbtiAnswers: [],
-    
+
     // Demographics
     fechaNacimiento: '',
     anioNacimiento: '',
-    
+
     // Cultural preferences
     musica: [],
     peliculas: ['', '', ''],
@@ -585,6 +587,38 @@ const Onboarding = ({ onComplete }) => {
                 {generaciones.map(gen => (
                   <option key={gen} value={gen}>{gen}</option>
                 ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">Tu género</label>
+              <select
+                value={userData.genero}
+                onChange={(e) => setUserData({ ...userData, genero: e.target.value })}
+                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2"
+              >
+                <option value="">Prefiero no decir</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="no-binario">No binario</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">Tu orientación sexual</label>
+              <select
+                value={userData.orientacionSexual}
+                onChange={(e) => setUserData({ ...userData, orientacionSexual: e.target.value })}
+                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2"
+              >
+                <option value="">Prefiero no decir</option>
+                <option value="heterosexual">Heterosexual</option>
+                <option value="homosexual">Homosexual</option>
+                <option value="bisexual">Bisexual</option>
+                <option value="pansexual">Pansexual</option>
+                <option value="asexual">Asexual</option>
+                <option value="otro">Otro</option>
               </select>
             </div>
           </div>

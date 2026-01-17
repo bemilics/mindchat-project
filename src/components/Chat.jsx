@@ -10,7 +10,7 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
     }
   ]);
   const [inputText, setInputText] = useState('');
-  const [messagesRemaining, setMessagesRemaining] = useState(50);
+  const [messagesRemaining, setMessagesRemaining] = useState(10);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -28,21 +28,30 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
 
   // Mapear voces generadas con propiedades de UI
   const voices = generatedVoices.map((voz, index) => {
-    const arquetipoMap = {
+    // Mapeo de arquetipos viejos a IDs (backward compatibility)
+    const arquetipoToIdMap = {
       'LÓGICA': 'logica',
+      'Cable a Tierra': 'logica',
       'RETÓRICA': 'retorica',
+      'Performance Social': 'retorica',
       'ELECTROCHEMISTRY': 'electrochemistry',
+      'Motor de Impulsos': 'electrochemistry',
       'FÍSICO': 'fisico',
+      'Monitor Corporal': 'fisico',
       'INTUICIÓN': 'intuicion',
+      'Radar Interno': 'intuicion',
       'VOLICIÓN': 'volicion',
+      'Fuerza de Voluntad': 'volicion',
       'EMPATÍA': 'empatia',
-      'ANSIEDAD': 'ansiedad'
+      'Sintonizador Emocional': 'empatia',
+      'ANSIEDAD': 'ansiedad',
+      'Sistema de Alarma': 'ansiedad'
     };
-    
+
     return {
-      id: arquetipoMap[voz.arquetipo] || voz.arquetipo.toLowerCase(),
-      name: voz.arquetipo,
-      shortName: voz.nombre_personaje,
+      id: arquetipoToIdMap[voz.arquetipo] || voz.arquetipo.toLowerCase().replace(/\s+/g, '-'),
+      name: voz.arquetipo, // Arquetipo descriptivo
+      shortName: voz.nombre_personaje, // Nombre personalizado
       initial: voz.nombre_personaje.substring(0, 2).toUpperCase(),
       personality: voz,
       ...voiceColors[index]
@@ -413,8 +422,8 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
 
           <div className="text-right">
             <div className="text-sm text-gray-400">Mensajes restantes</div>
-            <div className={`text-2xl font-bold ${messagesRemaining <= 10 ? 'text-red-400' : 'text-green-400'}`}>
-              {messagesRemaining}/50
+            <div className={`text-2xl font-bold ${messagesRemaining <= 3 ? 'text-red-400' : 'text-green-400'}`}>
+              {messagesRemaining}/10
             </div>
           </div>
         </div>
@@ -437,6 +446,7 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
                 </div>
                 <div>
                   <div className={`text-xs font-medium ${voice.textColor}`}>{voice.shortName}</div>
+                  <div className="text-[10px] text-gray-500">{voice.name}</div>
                 </div>
               </div>
             ))}
@@ -485,6 +495,9 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className={`font-semibold text-sm ${voice.textColor}`}>
                       {voice.shortName}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {voice.name}
                     </span>
                     <span className="text-xs text-gray-600">
                       {msg.timestamp.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
