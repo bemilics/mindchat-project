@@ -76,7 +76,7 @@ function App() {
 
   return (
     <div className="app">
-      {currentView === 'onboarding' && (
+      {currentView === 'onboarding' && !isGeneratingVoices && !generationError && (
         <Onboarding onComplete={handleOnboardingComplete} />
       )}
 
@@ -93,6 +93,11 @@ function App() {
               Generando tus voces internas...
             </div>
             <p className="text-gray-400 text-sm">Esto puede tomar 10-15 segundos</p>
+            {debugConfig && (
+              <p className="text-xs text-gray-500 mt-2">
+                Modelo: {debugConfig.profileModel === 'sonnet' ? '🔵 Sonnet' : '🟢 Haiku'}
+              </p>
+            )}
           </div>
         </div>
       )}

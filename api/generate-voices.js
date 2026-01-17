@@ -86,20 +86,23 @@ export default async function handler(req, res) {
     const prompt = `Eres un experto en crear voces internas basadas en arquetipos psicológicos y personalidad.
 
 **PERFIL DEL USUARIO:**
-- MBTI: ${userData.mbti}
-- Signo: ${userData.signo}
-- Generación: ${userData.generacion}
-- Música: ${userData.musica.join(', ')}
-- Películas: ${userData.peliculas.join(', ')}
-- Videojuegos: ${userData.videojuegos.join(', ')}
-- Alignment: ${userData.alignment}
+- MBTI: ${userData.mbti || 'No especificado'}
+- Signo: ${userData.signo || 'No especificado'}
+- Generación: ${userData.generacion || 'No especificado'}
+- Música: ${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No especificado'}
+- Películas: ${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No especificado'}
+- Videojuegos: ${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No especificado'}
+- Alignment: ${userData.alignment || 'No especificado'}
 - Online: ${nivelOnlineText}
 
-**ARQUETIPOS BASE (no cambiar):**
+**ARQUETIPOS BASE (DEBES GENERAR LOS 8):**
 
 ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).join('\n')}
 
 **INSTRUCCIONES CRÍTICAS:**
+
+⚠️ **IMPORTANTE**: DEBES generar EXACTAMENTE 8 voces, una por cada arquetipo listado arriba. No generes menos de 8 voces.
+
 
 1. **Nombres**: Deben estar SUTILMENTE inspirados en los gustos, pero NO ser referencias directas obvias
    - ❌ DEMASIADO LITERAL: "GLadOS" (si puso Portal), "Godzilla" (si puso Godzilla), "Electrochemistry" (nombre del juego)
@@ -125,13 +128,14 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
    - Dark Souls → "Estamina", "Covenant", "Bonfire"
    - Terminally Online → "Doomscroll", "Timeline", "Thread"
 
-Para CADA voz genera:
+Para CADA UNA de las 8 voces genera:
+- arquetipo: Nombre del arquetipo (Cable a Tierra, Performance Social, etc.)
 - nombre_personaje: Nombre abstracto que refleje su función psicológica
 - forma_de_hablar: vocabulario, referencias (sutiles, no literales), formalidad, slang (mínimo)
 - catchphrases: 2 frases en ESPAÑOL que esta voz diría
 - ejemplo_mensaje: Mensaje corto en ESPAÑOL (modismos inglés solo si es natural)
 
-**FORMATO:**
+**FORMATO (EXACTAMENTE 8 VOCES EN EL ARRAY):**
 
 {
   "voces": [
@@ -146,7 +150,13 @@ Para CADA voz genera:
       },
       "catchphrases": ["...", "..."],
       "ejemplo_mensaje": "..."
-    }
+    },
+    {
+      "arquetipo": "Performance Social",
+      "nombre_personaje": "...",
+      ...
+    },
+    ... (continuar hasta completar las 8 voces)
   ]
 }`;
 
@@ -206,6 +216,21 @@ Para CADA voz genera:
     }
 
     const voicesData = JSON.parse(jsonMatch[0]);
+
+    // Validar que se generaron exactamente 8 voces
+    if (!voicesData.voces || !Array.isArray(voicesData.voces)) {
+      return res.status(500).json({
+        error: 'Formato de respuesta inválido: no se encontró el array de voces'
+      });
+    }
+
+    if (voicesData.voces.length !== 8) {
+      console.error(`Se generaron ${voicesData.voces.length} voces en lugar de 8`);
+      return res.status(500).json({
+        error: `Se generaron ${voicesData.voces.length} voces en lugar de 8. Por favor intenta de nuevo.`,
+        details: { generatedCount: voicesData.voces.length }
+      });
+    }
 
     // Retornar las voces generadas
     return res.status(200).json({
