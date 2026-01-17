@@ -1,16 +1,45 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }) => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      voice: 'system',
-      text: 'Tus voces están listas. Cuéntales lo que quieras, te van a responder desde sus perspectivas.',
-      timestamp: new Date()
+  // Cargar mensajes guardados o usar mensaje inicial
+  const getInitialMessages = () => {
+    try {
+      const saved = localStorage.getItem('mindchat_messages');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Convertir timestamps de string a Date
+        return parsed.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
     }
-  ]);
+    return [
+      {
+        id: 1,
+        voice: 'system',
+        text: 'Tus voces están listas. Cuéntales lo que quieras, te van a responder desde sus perspectivas.',
+        timestamp: new Date()
+      }
+    ];
+  };
+
+  // Cargar messagesRemaining guardados
+  const getInitialMessagesRemaining = () => {
+    try {
+      const saved = localStorage.getItem('mindchat_messages_remaining');
+      return saved ? parseInt(saved, 10) : 10;
+    } catch (error) {
+      console.error('Error loading messages remaining:', error);
+      return 10;
+    }
+  };
+
+  const [messages, setMessages] = useState(getInitialMessages);
   const [inputText, setInputText] = useState('');
-  const [messagesRemaining, setMessagesRemaining] = useState(10);
+  const [messagesRemaining, setMessagesRemaining] = useState(getInitialMessagesRemaining);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
@@ -65,6 +94,24 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Guardar mensajes en localStorage cuando cambien
+  useEffect(() => {
+    try {
+      localStorage.setItem('mindchat_messages', JSON.stringify(messages));
+    } catch (error) {
+      console.error('Error saving messages:', error);
+    }
+  }, [messages]);
+
+  // Guardar messagesRemaining en localStorage cuando cambien
+  useEffect(() => {
+    try {
+      localStorage.setItem('mindchat_messages_remaining', messagesRemaining.toString());
+    } catch (error) {
+      console.error('Error saving messages remaining:', error);
+    }
+  }, [messagesRemaining]);
 
   // Generar respuestas de las voces usando el serverless function o mock (debug mode)
   const generateVoiceResponses = async (userMessage) => {
@@ -382,17 +429,17 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       {/* Header */}
-      <div className="bg-gray-800 border-b border-gray-700 p-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+      <div className="bg-gray-800 border-b border-gray-700 p-3 sm:p-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
                 MINDCHAT
               </h1>
               {debugConfig && (
-                <div className="flex gap-2">
+                <div className="flex gap-1 sm:gap-2 flex-wrap">
                   {/* Badge de Perfil */}
-                  <span className={`text-xs px-2 py-1 rounded font-mono ${
+                  <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-mono ${
                     debugConfig.profileType === 'mock'
                       ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500'
                       : 'bg-purple-500/20 text-purple-400 border border-purple-500'
@@ -401,7 +448,7 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
                   </span>
 
                   {/* Badge de Chat */}
-                  <span className={`text-xs px-2 py-1 rounded font-mono ${
+                  <span className={`text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded font-mono ${
                     debugConfig.chatModel === 'mock'
                       ? 'bg-gray-600/50 text-gray-300 border border-gray-500'
                       : debugConfig.chatModel === 'sonnet'
@@ -413,33 +460,39 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
                 </div>
               )}
             </div>
-            <p className="text-sm text-gray-400">
-              {debugConfig && debugConfig.chatModel === 'mock' && 'Modo debug - Perfil preset + respuestas mock (0 créditos)'}
-              {debugConfig && debugConfig.chatModel !== 'mock' && `Modo debug - ${debugConfig.profileType === 'mock' ? 'Perfil preset' : 'Perfil generado'} + Chat ${debugConfig.chatModel === 'sonnet' ? 'Sonnet' : 'Haiku'}`}
+            <p className="text-xs sm:text-sm text-gray-400 truncate">
+              {debugConfig && debugConfig.chatModel === 'mock' && 'Debug - Mock'}
+              {debugConfig && debugConfig.chatModel !== 'mock' && `Debug - ${debugConfig.chatModel}`}
               {!debugConfig && 'Tu group chat interno'}
             </p>
           </div>
 
-          <div className="text-right">
-            <div className="text-sm text-gray-400">Mensajes restantes</div>
-            <div className={`text-2xl font-bold ${messagesRemaining <= 3 ? 'text-red-400' : 'text-green-400'}`}>
+          <div className="text-right flex-shrink-0">
+            <div className="text-[10px] sm:text-sm text-gray-400">Mensajes</div>
+            <div className={`text-lg sm:text-2xl font-bold ${messagesRemaining <= 3 ? 'text-red-400' : 'text-green-400'}`}>
               {messagesRemaining}/10
             </div>
+            <button
+              onClick={onReset}
+              className="mt-1 text-xs sm:text-sm text-gray-400 hover:text-gray-300 transition underline"
+            >
+              Nueva sesión
+            </button>
           </div>
         </div>
       </div>
 
       {/* Voces Sidebar/Pills */}
-      <div className="bg-gray-800/50 border-b border-gray-700 p-4 overflow-x-auto">
+      <div className="bg-gray-800/50 border-b border-gray-700 p-2 sm:p-4 overflow-x-auto">
         <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-nowrap sm:flex-wrap pb-2 sm:pb-0">
             {voices.map(voice => (
               <div
                 key={voice.id}
-                className={`flex items-center gap-2 px-3 py-2 rounded-full ${voice.bgColor} border ${voice.borderColor}`}
+                className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full ${voice.bgColor} border ${voice.borderColor} flex-shrink-0`}
               >
-                <div 
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                <div
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white"
                   style={{ backgroundColor: voice.color }}
                 >
                   {voice.initial}
@@ -455,13 +508,13 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 pb-32">
-        <div className="max-w-4xl mx-auto space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 pb-32 sm:pb-36">
+        <div className="max-w-4xl mx-auto space-y-3 sm:space-y-4">
           {messages.map(msg => {
             if (msg.voice === 'system') {
               return (
                 <div key={msg.id} className="text-center">
-                  <div className="inline-block bg-gray-800 px-4 py-2 rounded-lg text-sm text-gray-400">
+                  <div className="inline-block bg-gray-800 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm text-gray-400">
                     {msg.text}
                   </div>
                 </div>
@@ -471,8 +524,8 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
             if (msg.voice === 'user') {
               return (
                 <div key={msg.id} className="flex justify-end">
-                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-3 rounded-lg max-w-md">
-                    <div className="text-white">{msg.text}</div>
+                  <div className="bg-gradient-to-r from-purple-500 to-blue-500 px-3 sm:px-4 py-2 sm:py-3 rounded-lg max-w-[85%] sm:max-w-md">
+                    <div className="text-white text-sm sm:text-base">{msg.text}</div>
                     <div className="text-xs text-gray-200 mt-1 opacity-70">
                       {msg.timestamp.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -484,26 +537,26 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
             // Voice messages
             const voice = msg.voice;
             return (
-              <div key={msg.id} className="flex gap-3">
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 mt-1"
+              <div key={msg.id} className="flex gap-2 sm:gap-3">
+                <div
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold text-white flex-shrink-0 mt-1"
                   style={{ backgroundColor: voice.color }}
                 >
                   {voice.initial}
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-baseline gap-2 mb-1">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-1.5 sm:gap-2 mb-1 flex-wrap">
                     <span className={`font-semibold text-sm ${voice.textColor}`}>
                       {voice.shortName}
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-gray-500 hidden sm:inline">
                       {voice.name}
                     </span>
                     <span className="text-xs text-gray-600">
                       {msg.timestamp.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  <div className="text-gray-300">
+                  <div className="text-gray-300 text-sm sm:text-base">
                     {/* Parse @mentions */}
                     {msg.text.split(/(@[^\s,.!?;:]+)/g).map((part, i) => {
                       if (part.startsWith('@')) {
@@ -522,16 +575,16 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
           })}
 
           {isTyping && (
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
+            <div className="flex gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-700 flex items-center justify-center">
                 <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
               <div className="flex-1">
-                <div className="text-gray-500 text-sm italic">Las voces están pensando...</div>
+                <div className="text-gray-500 text-xs sm:text-sm italic">Las voces están pensando...</div>
               </div>
             </div>
           )}
@@ -541,7 +594,7 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
       </div>
 
       {/* Input Area - Fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-3 sm:p-4">
         <div className="max-w-4xl mx-auto">
           {messagesRemaining <= 0 ? (
             <div className="bg-red-500/20 border border-red-500 rounded-lg p-4 text-center">
@@ -556,27 +609,27 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
               </button>
             </div>
           ) : (
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="Escribe algo a tus voces..."
-                className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-lg px-4 py-3 resize-none focus:outline-none focus:border-purple-500 placeholder-gray-500"
+                placeholder="Escribe algo..."
+                className="flex-1 bg-gray-700 text-white border border-gray-600 rounded-lg px-3 py-2 sm:px-4 sm:py-3 resize-none focus:outline-none focus:border-purple-500 placeholder-gray-500 text-sm sm:text-base"
                 rows="1"
-                style={{ minHeight: '48px', maxHeight: '120px' }}
+                style={{ minHeight: '44px', maxHeight: '120px' }}
               />
               <button
                 onClick={handleSendMessage}
                 disabled={!inputText.trim()}
-                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base whitespace-nowrap"
               >
                 Enviar
               </button>
             </div>
           )}
-          
-          <div className="mt-2 text-xs text-gray-500 text-center">
+
+          <div className="mt-2 text-xs text-gray-500 text-center hidden sm:block">
             Usa @ para mencionar una voz específica • Shift + Enter para nueva línea
           </div>
         </div>

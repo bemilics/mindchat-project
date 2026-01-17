@@ -1,6 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Onboarding from './components/Onboarding'
 import Chat from './components/Chat'
+
+// Generar o recuperar sessionId único
+const getSessionId = () => {
+  let sessionId = localStorage.getItem('mindchat_session_id');
+  if (!sessionId) {
+    sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem('mindchat_session_id', sessionId);
+  }
+  return sessionId;
+};
+
+// Guardar estado en localStorage
+const saveToLocalStorage = (key, data) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error('Error saving to localStorage:', error);
+  }
+};
+
+// Cargar estado desde localStorage
+const loadFromLocalStorage = (key) => {
+  try {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error('Error loading from localStorage:', error);
+    return null;
+  }
+};
 
 function App() {
   const [currentView, setCurrentView] = useState('onboarding') // onboarding | chat
@@ -8,24 +38,61 @@ function App() {
   const [generatedVoices, setGeneratedVoices] = useState(null)
   const [isGeneratingVoices, setIsGeneratingVoices] = useState(false)
   const [generationError, setGenerationError] = useState(null)
+  const [sessionId, setSessionId] = useState(getSessionId())
 
   const [debugConfig, setDebugConfig] = useState(null) // null | { profileType, profileModel, chatModel }
+
+  // Cargar datos guardados al iniciar
+  useEffect(() => {
+    const savedUserData = loadFromLocalStorage('mindchat_user_data');
+    const savedVoices = loadFromLocalStorage('mindchat_voices');
+    const savedDebugConfig = loadFromLocalStorage('mindchat_debug_config');
+
+    if (savedUserData && savedVoices) {
+      console.log('[MindChat] Loading saved session:', {
+        userData: savedUserData,
+        voicesCount: savedVoices.length,
+        debugConfig: savedDebugConfig
+      });
+
+      setUserData(savedUserData);
+      setGeneratedVoices(savedVoices);
+      setDebugConfig(savedDebugConfig);
+      setCurrentView('chat');
+    } else {
+      console.log('[MindChat] No saved session found, starting onboarding');
+    }
+  }, []);
 
   const handleOnboardingComplete = async (data, config = null) => {
     setUserData(data)
     setDebugConfig(config)
 
+    console.log('[MindChat] Onboarding complete:', { data, config });
+
+    // Limpiar voces anteriores antes de guardar nuevos datos
+    localStorage.removeItem('mindchat_voices');
+    localStorage.removeItem('mindchat_messages');
+    localStorage.removeItem('mindchat_messages_remaining');
+
+    // Guardar userData y debugConfig
+    saveToLocalStorage('mindchat_user_data', data);
+    saveToLocalStorage('mindchat_debug_config', config);
+
     // Si es modo debug con perfil mock, usar voces pre-generadas
     if (config && config.profileType === 'mock') {
+      console.log('[MindChat] Using mock profile voices');
       // Importar dinámicamente el perfil debug
       const { debugVoices } = await import('./debugProfile.js')
       setGeneratedVoices(debugVoices)
+      saveToLocalStorage('mindchat_voices', debugVoices);
       setCurrentView('chat')
       return
     }
 
     // Si no es debug mock, generar voces con API
     // (incluye: normal flow, o debug con profileType === 'generate')
+    console.log('[MindChat] Generating voices with API, model:', config?.profileModel || 'haiku');
     setIsGeneratingVoices(true)
     setGenerationError(null)
 
@@ -50,15 +117,17 @@ function App() {
       }
 
       const responseData = await response.json()
+      console.log('[MindChat] Generated voices:', responseData);
 
       if (responseData.success && responseData.voces) {
         setGeneratedVoices(responseData.voces)
+        saveToLocalStorage('mindchat_voices', responseData.voces);
         setCurrentView('chat')
       } else {
         throw new Error('Respuesta inválida del servidor')
       }
     } catch (err) {
-      console.error('Error generating voices:', err)
+      console.error('[MindChat] Error generating voices:', err)
       setGenerationError(err.message)
     } finally {
       setIsGeneratingVoices(false)
@@ -66,6 +135,13 @@ function App() {
   }
 
   const resetApp = () => {
+    // Limpiar localStorage (excepto sessionId)
+    localStorage.removeItem('mindchat_user_data');
+    localStorage.removeItem('mindchat_voices');
+    localStorage.removeItem('mindchat_debug_config');
+    localStorage.removeItem('mindchat_messages');
+    localStorage.removeItem('mindchat_messages_remaining');
+
     setCurrentView('onboarding')
     setUserData(null)
     setGeneratedVoices(null)
