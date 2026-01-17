@@ -105,10 +105,11 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
 
 
 1. **Nombres**: Deben estar SUTILMENTE inspirados en los gustos, pero NO ser referencias directas obvias
-   - ❌ DEMASIADO LITERAL: "GLadOS" (si puso Portal), "Godzilla" (si puso Godzilla), "Electrochemistry" (nombre del juego)
+   - ❌ DEMASIADO LITERAL: Copiar nombres de personajes, lugares o elementos directamente de sus gustos
    - ❌ DEMASIADO GENÉRICO: "El Analista", "El Estratega", "La Corazonada"
-   - ✅ SWEET SPOT: "Kaiju" (si puso Godzilla - referencia sutil), "Axioma" (si puso Portal - lógica/puzzles), "Covenant" (si puso Dark Souls - pactos), "Encore" (si puso K-Pop - shows)
-   - ✅ NO uses artículos ("El/La"), solo el nombre: "Axioma", "Kaiju", "Encore", "Síntesis"
+   - ✅ SWEET SPOT: Nombres abstractos que evoquen SENSACIONES, MECÁNICAS o TEMAS de sus gustos
+   - ✅ NO uses artículos ("El/La"), solo el nombre
+   - ✅ Crea nombres ORIGINALES que nadie más tendría - piensa en metáforas únicas
 
 2. **Personalidad**: Usa el perfil para entender QUÉ REPRESENTA de la persona:
    - MBTI: Define cómo procesa información (${userData.mbti})
@@ -120,13 +121,16 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
    - ❌ MAL: Frases completas en inglés, demasiado slang
    - ✅ BIEN: Español fluido con "lowkey", "literally", "vibe" cuando sea natural
 
-4. **Inspiración Sutil**: Si el usuario puso:
-   - Godzilla/Kaijus → "Kaiju", "Tremor", "Coloso"
-   - Portal → "Axioma", "Calibrador", "Protocolo"
-   - K-Pop → "Encore", "Fanchant", "Showcase"
-   - EDM/Electronic → "Síntesis", "Drop", "BPM"
-   - Dark Souls → "Estamina", "Covenant", "Bonfire"
-   - Terminally Online → "Doomscroll", "Timeline", "Thread"
+4. **Inspiración Sutil**: Los nombres deben ser ÚNICOS y originales basados en los gustos del usuario
+   - Toma conceptos ABSTRACTOS de sus películas/juegos/música favoritos
+   - Si algún campo está vacío o dice "No especificado", usa MBTI, alignment y nivel online para inspirarte
+   - NO copies nombres de personajes, lugares o elementos directamente
+   - Piensa en SENSACIONES, MECÁNICAS, TEMAS que representen esos medios
+   - Cada perfil debe generar nombres COMPLETAMENTE DIFERENTES
+   - Usa el MBTI y alignment para definir el tono de los nombres
+   - NUNCA uses estos nombres: Axioma, Encore, Síntesis, Estamina, Kaiju, Covenant, Wavelength, Doomscroll
+
+**IMPORTANTE**: NO reutilices nombres de perfiles anteriores. Cada perfil es ÚNICO. Cada generación debe crear 8 nombres NUEVOS.
 
 Para CADA UNA de las 8 voces genera:
 - arquetipo: Nombre del arquetipo (Cable a Tierra, Performance Social, etc.)
