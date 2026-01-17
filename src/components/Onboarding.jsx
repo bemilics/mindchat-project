@@ -2,19 +2,25 @@ import React, { useState } from 'react';
 
 const Onboarding = ({ onComplete }) => {
   const [step, setStep] = useState(1);
+  const [showDebugMenu, setShowDebugMenu] = useState(false);
+  const [debugStep, setDebugStep] = useState(1); // Para el wizard del debug
+  const [debugProfileType, setDebugProfileType] = useState(null); // 'mock' | 'generate'
+  const [showModelSelector, setShowModelSelector] = useState(false); // Para flujo normal en dev
   const [userData, setUserData] = useState({
     // Manual inputs
     mbti: '',
     signo: '',
     generacion: '',
-    
+    genero: '',
+    orientacionSexual: '',
+
     // MBTI test answers (if needed)
     mbtiAnswers: [],
-    
+
     // Demographics
     fechaNacimiento: '',
     anioNacimiento: '',
-    
+
     // Cultural preferences
     musica: [],
     peliculas: ['', '', ''],
@@ -219,9 +225,56 @@ const Onboarding = ({ onComplete }) => {
     }
   };
 
+  const handleDebugMode = async (profileType, profileModel, chatModel) => {
+    // profileType: 'mock' | 'generate'
+    // profileModel: null | 'haiku' | 'sonnet' (null si profileType es 'mock')
+    // chatModel: 'mock' | 'haiku' | 'sonnet'
+
+    const debugConfig = {
+      profileType,
+      profileModel,
+      chatModel
+    };
+
+    if (profileType === 'mock') {
+      // Cargar perfil preset
+      const { debugUserData } = await import('../debugProfile.js');
+      onComplete(debugUserData, debugConfig);
+    } else {
+      // profileType === 'generate', necesitamos generar el perfil con API
+      const { debugUserData } = await import('../debugProfile.js');
+      // Pasamos userData base para que genere con API
+      onComplete(debugUserData, debugConfig);
+    }
+
+    setShowDebugMenu(false);
+    setDebugStep(1);
+    setDebugProfileType(null);
+  };
+
+  const handleNormalFlowWithModels = (profileModel, chatModel) => {
+    // Flujo normal pero con selección de modelos (solo en dev)
+    const debugConfig = {
+      profileType: 'generate',
+      profileModel,
+      chatModel
+    };
+
+    onComplete(userData, debugConfig);
+    setShowModelSelector(false);
+  };
+
   const renderStep = () => {
     // Step 1: Welcome
     if (step === 1) {
+      // Debug mode disponible en:
+      // 1. localhost
+      // 2. Vercel preview/develop (con variable de entorno)
+      // 3. NUNCA en producción
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const isDebugEnabled = import.meta.env.VITE_ENABLE_DEBUG === 'true';
+      const isDev = isLocalhost || isDebugEnabled;
+
       return (
         <div className="space-y-6 text-center">
           <div className="space-y-2">
@@ -232,7 +285,7 @@ const Onboarding = ({ onComplete }) => {
               Tu group chat interno
             </p>
           </div>
-          
+
           <div className="space-y-4 text-left max-w-md mx-auto">
             <p className="text-gray-300">
               Vamos a crear las voces en tu cabeza, pero personalizadas para ti.
@@ -248,6 +301,245 @@ const Onboarding = ({ onComplete }) => {
           >
             Empezar
           </button>
+
+          {isDev && (
+            <>
+              <button
+                onClick={() => setShowDebugMenu(true)}
+                className="w-full max-w-xs mx-auto bg-gray-800 hover:bg-gray-700 text-gray-400 py-2 px-4 rounded-lg text-sm font-medium transition border border-gray-700"
+              >
+                🐛 Debug Mode (Skip to Chat)
+              </button>
+
+              {/* Debug Menu Modal */}
+              {showDebugMenu && (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+                  <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full border border-gray-700">
+                    <div className="space-y-4">
+                      {/* Header */}
+                      <div className="space-y-2">
+                        <h3 className="text-xl font-bold text-white">
+                          🐛 Modo Debug {debugStep === 2 && `- Paso 2 de 2`}
+                        </h3>
+                        <p className="text-sm text-gray-400">
+                          {debugStep === 1
+                            ? "Paso 1: Selecciona el tipo de perfil"
+                            : "Paso 2: Selecciona los modelos a usar"}
+                        </p>
+                      </div>
+
+                      {/* Step 1: Tipo de Perfil */}
+                      {debugStep === 1 && (
+                        <div className="space-y-3">
+                          <button
+                            onClick={() => {
+                              setDebugProfileType('mock');
+                              setDebugStep(2);
+                            }}
+                            className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🎭 Mock Profile (Preset)
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Usar perfil pre-generado (ISTJ, Capricornio, Gen Z, etc.)
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              ✅ No consume créditos para el perfil • Voces ya creadas
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setDebugProfileType('generate');
+                              setDebugStep(2);
+                            }}
+                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🤖 Generate Profile (API)
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Generar voces con Claude API usando perfil preset
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              ⚠️ Consume créditos para generar voces
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Step 2: Modelos - Si Mock Profile */}
+                      {debugStep === 2 && debugProfileType === 'mock' && (
+                        <div className="space-y-3">
+                          <p className="text-xs text-gray-400 mb-2">
+                            Perfil: <span className="text-yellow-400 font-bold">🎭 Mock</span> • Selecciona modelo para el chat:
+                          </p>
+
+                          <button
+                            onClick={() => handleDebugMode('mock', null, 'mock')}
+                            className="w-full bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              💾 Mock Chat
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Respuestas mock hardcodeadas
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              ✅ 0 créditos • Instantáneo
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => handleDebugMode('mock', null, 'haiku')}
+                            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🟢 Haiku Chat
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Claude 3.5 Haiku para respuestas
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              💰 ~$0.001/mensaje • Rápido y económico
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => handleDebugMode('mock', null, 'sonnet')}
+                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🔵 Sonnet Chat
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Claude Sonnet 4 para respuestas premium
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              💎 ~$0.02/mensaje • Máxima calidad
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Step 2: Modelos - Si Generate Profile */}
+                      {debugStep === 2 && debugProfileType === 'generate' && (
+                        <div className="space-y-3">
+                          <p className="text-xs text-gray-400 mb-2">
+                            Perfil: <span className="text-purple-400 font-bold">🤖 Generate</span> • Selecciona modelos para perfil y chat:
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            {/* Haiku + Haiku */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'haiku', 'haiku')}
+                              className="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🟢 Haiku + 🟢 Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Haiku
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💰 ~$0.005 total
+                              </div>
+                            </button>
+
+                            {/* Haiku + Sonnet */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'haiku', 'sonnet')}
+                              className="bg-gradient-to-br from-green-600 via-teal-600 to-blue-600 hover:from-green-500 hover:via-teal-500 hover:to-blue-500 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🟢 Haiku + 🔵 Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Sonnet
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💰 ~$0.024 total
+                              </div>
+                            </button>
+
+                            {/* Sonnet + Haiku */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'sonnet', 'haiku')}
+                              className="bg-gradient-to-br from-blue-600 via-teal-600 to-green-600 hover:from-blue-500 hover:via-teal-500 hover:to-green-500 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🔵 Sonnet + 🟢 Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Haiku
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💰 ~$0.061 total
+                              </div>
+                            </button>
+
+                            {/* Sonnet + Sonnet */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'sonnet', 'sonnet')}
+                              className="bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🔵 Sonnet + 🔵 Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Sonnet
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💎 ~$0.08 total
+                              </div>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Botones de navegación */}
+                      <div className="flex gap-2">
+                        {debugStep === 2 && (
+                          <button
+                            onClick={() => {
+                              setDebugStep(1);
+                              setDebugProfileType(null);
+                            }}
+                            className="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded-lg text-sm font-medium transition"
+                          >
+                            ← Atrás
+                          </button>
+                        )}
+                        <button
+                          onClick={() => {
+                            setShowDebugMenu(false);
+                            setDebugStep(1);
+                            setDebugProfileType(null);
+                          }}
+                          className="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded-lg text-sm transition"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           <p className="text-xs text-gray-500 mt-8">
             Disclaimer: Esto es para entretenimiento. Si estás en crisis, habla con un profesional.
@@ -308,6 +600,38 @@ const Onboarding = ({ onComplete }) => {
                 {generaciones.map(gen => (
                   <option key={gen} value={gen}>{gen}</option>
                 ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">Tu género</label>
+              <select
+                value={userData.genero}
+                onChange={(e) => setUserData({ ...userData, genero: e.target.value })}
+                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2"
+              >
+                <option value="">Prefiero no decir</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+                <option value="no-binario">No binario</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">Tu orientación sexual</label>
+              <select
+                value={userData.orientacionSexual}
+                onChange={(e) => setUserData({ ...userData, orientacionSexual: e.target.value })}
+                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2"
+              >
+                <option value="">Prefiero no decir</option>
+                <option value="heterosexual">Heterosexual</option>
+                <option value="homosexual">Homosexual</option>
+                <option value="bisexual">Bisexual</option>
+                <option value="pansexual">Pansexual</option>
+                <option value="asexual">Asexual</option>
+                <option value="otro">Otro</option>
               </select>
             </div>
           </div>
@@ -600,7 +924,16 @@ const Onboarding = ({ onComplete }) => {
           <button
             onClick={() => {
               console.log('User data:', userData);
-              onComplete(userData);
+              // En desarrollo, mostrar selector de modelos
+              const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+              const isDebugEnabled = import.meta.env.VITE_ENABLE_DEBUG === 'true';
+              const isDev = isLocalhost || isDebugEnabled;
+
+              if (isDev) {
+                setShowModelSelector(true);
+              } else {
+                onComplete(userData);
+              }
             }}
             className="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white py-3 px-6 rounded-lg font-medium hover:opacity-90 transition"
           >
@@ -615,6 +948,112 @@ const Onboarding = ({ onComplete }) => {
     <div className="min-h-screen bg-gray-900 text-white p-6 flex items-center justify-center">
       <div className="w-full max-w-2xl">
         {renderStep()}
+
+        {/* Modal de selección de modelos (flujo normal en dev) */}
+        {showModelSelector && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full border border-gray-700">
+              <div className="space-y-4">
+                {/* Header */}
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-white">
+                    ⚙️ Selecciona los modelos
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Elige qué modelos usar para generar tu perfil y las respuestas del chat
+                  </p>
+                </div>
+
+                {/* Opciones de modelos */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Haiku + Haiku */}
+                  <button
+                    onClick={() => handleNormalFlowWithModels('haiku', 'haiku')}
+                    className="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white p-4 rounded-lg text-left transition"
+                  >
+                    <div className="font-bold text-sm mb-1">
+                      🟢 Haiku + 🟢 Haiku
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Perfil: Haiku
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Chat: Haiku
+                    </div>
+                    <div className="text-xs text-white/60 mt-1">
+                      💰 ~$0.005 total
+                    </div>
+                  </button>
+
+                  {/* Haiku + Sonnet */}
+                  <button
+                    onClick={() => handleNormalFlowWithModels('haiku', 'sonnet')}
+                    className="bg-gradient-to-br from-green-600 via-teal-600 to-blue-600 hover:from-green-500 hover:via-teal-500 hover:to-blue-500 text-white p-4 rounded-lg text-left transition"
+                  >
+                    <div className="font-bold text-sm mb-1">
+                      🟢 Haiku + 🔵 Sonnet
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Perfil: Haiku
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Chat: Sonnet
+                    </div>
+                    <div className="text-xs text-white/60 mt-1">
+                      💰 ~$0.024 total
+                    </div>
+                  </button>
+
+                  {/* Sonnet + Haiku */}
+                  <button
+                    onClick={() => handleNormalFlowWithModels('sonnet', 'haiku')}
+                    className="bg-gradient-to-br from-blue-600 via-teal-600 to-green-600 hover:from-blue-500 hover:via-teal-500 hover:to-green-500 text-white p-4 rounded-lg text-left transition"
+                  >
+                    <div className="font-bold text-sm mb-1">
+                      🔵 Sonnet + 🟢 Haiku
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Perfil: Sonnet
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Chat: Haiku
+                    </div>
+                    <div className="text-xs text-white/60 mt-1">
+                      💰 ~$0.061 total
+                    </div>
+                  </button>
+
+                  {/* Sonnet + Sonnet */}
+                  <button
+                    onClick={() => handleNormalFlowWithModels('sonnet', 'sonnet')}
+                    className="bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white p-4 rounded-lg text-left transition"
+                  >
+                    <div className="font-bold text-sm mb-1">
+                      🔵 Sonnet + 🔵 Sonnet
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Perfil: Sonnet
+                    </div>
+                    <div className="text-xs text-white/80">
+                      Chat: Sonnet
+                    </div>
+                    <div className="text-xs text-white/60 mt-1">
+                      💎 ~$0.08 total
+                    </div>
+                  </button>
+                </div>
+
+                {/* Botón cancelar */}
+                <button
+                  onClick={() => setShowModelSelector(false)}
+                  className="w-full bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded-lg text-sm transition"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

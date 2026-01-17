@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { userMessage, voices, userData, conversationHistory } = req.body;
+    const { userMessage, voices, userData, conversationHistory, model } = req.body;
 
     // Validaciones
     if (!userMessage || !voices || !userData) {
@@ -16,6 +16,12 @@ export default async function handler(req, res) {
         error: 'userMessage, voices y userData son requeridos'
       });
     }
+
+    // Determinar qué modelo usar
+    // model puede ser: 'haiku', 'sonnet', o undefined (default: haiku)
+    const modelName = model === 'sonnet'
+      ? 'claude-sonnet-4-20250514'
+      : 'claude-3-5-haiku-20241022';
 
     // API key desde environment variables (segura en Vercel)
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -25,64 +31,68 @@ export default async function handler(req, res) {
     }
 
     // Construir system prompt con las voces
-    const systemPrompt = `Eres un sistema que simula 8 voces internas de una persona, cada una con su propia personalidad y forma de hablar.
+    const systemPrompt = `Eres un sistema que simula 8 voces internas de una persona.
 
-**PERFIL DEL USUARIO:**
+**PERFIL:**
 - MBTI: ${userData.mbti}
 - Signo: ${userData.signo}
 - Generación: ${userData.generacion}
-- Música: ${userData.musica?.join(', ')}
-- Películas: ${userData.peliculas?.join(', ')}
-- Videojuegos: ${userData.videojuegos?.join(', ')}
 - Alignment: ${userData.alignment}
-- Nivel online: ${userData.nivelOnline}/5
 
-**LAS 8 VOCES:**
+**VOCES:**
 
 ${voices.map(v => `
-**${v.name} (${v.shortName})**
-- Arquetipo: ${v.id}
-- Vocabulario: ${v.personality?.forma_de_hablar?.vocabulario?.join(', ') || 'N/A'}
-- Referencias: ${v.personality?.forma_de_hablar?.referencias || 'N/A'}
-- Formalidad: ${v.personality?.forma_de_hablar?.formalidad || 'N/A'}
-- Catchphrases: ${v.personality?.catchphrases?.join(' | ') || 'N/A'}
+**${v.name} - ${v.shortName}**
+ID: ${v.id}
+Vocabulario: ${v.personality?.forma_de_hablar?.vocabulario?.join(', ') || 'N/A'}
+Estilo: ${v.personality?.forma_de_hablar?.formalidad || 'N/A'}
 `).join('\n')}
 
-**INSTRUCCIONES:**
+**REGLAS CRÍTICAS:**
 
-1. El usuario escribió: "${userMessage}"
+1. **IDIOMA**: ESPAÑOL latino neutro es el DEFAULT
+   - ❌ NO escribas frases completas en inglés
+   - ✅ SÍ usa modismos breves: "lowkey", "literally", "vibe", "bro" (SOLO cuando sea natural)
+   - Las voces piensan en español, hablan en español
 
-2. Responde desde la perspectiva de 3-5 voces (NO siempre las 8, solo las más relevantes para este mensaje específico)
+2. **CANTIDAD DE RESPUESTAS**: 6-8 voces deben responder (la mayoría o todas)
+   - Genera conversaciones dinámicas donde varias voces participan
+   - Está bien que todas las 8 voces opinen si el tema es relevante para todas
 
-3. Cada voz debe:
-   - Mantener su personalidad y forma de hablar única
-   - Usar vocabulario y referencias características
-   - Responder de forma natural y conversacional
-   - Puede @mencionar a otras voces por su nombre (${voices.map(v => v.shortName).join(', ')})
-   - Puede estar en desacuerdo o debatir con otras voces
+3. **PERSONALIDAD**: Cada voz mantiene:
+   - Su vocabulario característico
+   - Su forma de razonar
+   - DEBE @mencionar otras voces frecuentemente: ${voices.map(v => v.shortName).join(', ')}
+   - DEBE debatir y contradecirse entre ellas activamente
+   - Cada voz puede responder a lo que otra voz dijo
 
-4. Las voces hablan en español latino neutro con modismos en inglés cuando es natural
+4. **LONGITUD DE MENSAJES**: Más desarrollados y conversacionales (2-4 líneas cada uno)
+   - Las voces deben elaborar sus puntos, no solo frases cortísimas
+   - Pueden incluir argumentos, ejemplos, o contra-argumentos
+   - Está bien que sean más extensas si están debatiendo o construyendo sobre lo que otra voz dijo
 
-5. Responde en este formato JSON (sin markdown, sin comentarios):
+5. **INTERACCIONES**: Las voces deben interactuar entre sí
+   - Usa @menciones para dirigirse a otras voces
+   - Ejemplo: "@Axioma tiene razón pero...", "@Doomscroll estás exagerando de nuevo", "@Covenant ok pero necesito mi dopamina NOW"
+   - Crea debates, discusiones y conversaciones entre las voces
+   - No todas deben estar de acuerdo, el conflicto es interesante
+
+6. **FORMATO JSON:**
 
 {
   "responses": [
     {
       "voice_id": "logica",
-      "text": "mensaje de la voz aquí"
-    },
-    {
-      "voice_id": "ansiedad",
-      "text": "otro mensaje aquí, puede incluir @menciones a otras voces"
+      "text": "mensaje en ESPAÑOL con máximo 2-3 palabras en inglés si es natural"
     }
   ]
 }
 
-**IMPORTANTE:**
-- Los voice_id deben corresponder exactamente a: ${voices.map(v => v.id).join(', ')}
-- No inventes voice_ids que no existan
-- 3-5 voces máximo por respuesta
-- Mantén los mensajes cortos (1-3 líneas cada uno)`;
+**VOICE IDS VÁLIDOS:** ${voices.map(v => v.id).join(', ')}
+
+**MENSAJE DEL USUARIO:** "${userMessage}"
+
+Responde AHORA en JSON:`;
 
     // Construir historial de conversación (opcional, para contexto)
     const messages = [
@@ -110,21 +120,38 @@ ${voices.map(v => `
       messages[0].content = `CONTEXTO DE CONVERSACIÓN RECIENTE:\n${historyContext}\n\nNUEVO MENSAJE DEL USUARIO: "${userMessage}"`;
     }
 
-    // Llamar a Claude API
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        system: systemPrompt,
-        messages: messages
-      })
-    });
+    // Llamar a Claude API con timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 segundos timeout
+
+    try {
+      var response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: modelName,
+          max_tokens: 4000,
+          system: systemPrompt,
+          messages: messages
+        }),
+        signal: controller.signal
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        return res.status(504).json({
+          error: 'La solicitud a Claude API tomó demasiado tiempo',
+          timeout: true
+        });
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errorData = await response.json();

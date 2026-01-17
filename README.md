@@ -42,19 +42,26 @@ npm install
 
 ### 3. Configurar variables de entorno
 
-Crea un archivo `.env` en la raíz del proyecto (copia de `.env.example`):
+Crea un archivo `.env.local` en la raíz del proyecto:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Edita el archivo `.env` y agrega tu API key:
+Edita el archivo `.env.local` y configura:
 
 ```
-VITE_ANTHROPIC_API_KEY=tu_api_key_de_anthropic_aqui
+# API Key para serverless functions (backend)
+ANTHROPIC_API_KEY=tu_api_key_de_anthropic_aqui
+
+# Modo debug (opcional, para development)
+VITE_ENABLE_DEBUG=true
 ```
 
-**⚠️ IMPORTANTE:** Nunca commitees el archivo `.env` a Git. Ya está en `.gitignore`.
+**⚠️ IMPORTANTE:**
+- El archivo `.env.local` está en `.gitignore` y nunca se sube a Git
+- La API key se usa solo en serverless functions (backend), nunca se expone al cliente
+- Ver `VERCEL_ENV_SETUP.md` para configuración en Vercel por ambiente
 
 ### 4. Ejecutar en desarrollo
 
@@ -203,6 +210,29 @@ vercel --prod
 6. Pégala en tu archivo `.env`
 
 **Pricing:** Claude tiene un free tier con créditos iniciales. Revisa [anthropic.com/pricing](https://www.anthropic.com/pricing) para más info.
+
+---
+
+## 🐛 Modo Debug (Development)
+
+Para testing rápido sin consumir créditos de API:
+
+### Localhost (siempre habilitado)
+1. Ejecuta `npm run dev` o `vercel dev`
+2. En la pantalla inicial verás el botón **"🐛 Debug Mode"**
+3. Click para saltar directo al chat con un perfil pre-generado
+
+### Vercel Preview/Develop
+1. Configura la variable `VITE_ENABLE_DEBUG=true` solo para Preview
+2. Ver guía completa en `VERCEL_ENV_SETUP.md`
+3. El modo debug NO estará disponible en producción
+
+**Perfil Debug:**
+- MBTI: ISTJ
+- Signo: Capricornio
+- Gen Z / Chaotic Good / Terminally online
+- 8 voces pre-generadas
+- **NO consume API** (ideal para testing)
 
 ---
 

@@ -8,12 +8,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { userData } = req.body;
+    const { userData, model } = req.body;
 
     // Validar que userData existe
     if (!userData) {
       return res.status(400).json({ error: 'userData es requerido' });
     }
+
+    // Determinar qué modelo usar
+    // model puede ser: 'haiku', 'sonnet', o undefined (default: haiku)
+    const modelName = model === 'sonnet'
+      ? 'claude-sonnet-4-20250514'
+      : 'claude-3-5-haiku-20241022';
 
     // API key desde environment variables (segura en Vercel)
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -32,101 +38,109 @@ export default async function handler(req, res) {
     ];
     const nivelOnlineText = nivelOnlineTexts[userData.nivelOnline - 1];
 
-    // Arquetipos base
+    // Arquetipos base (nombres descriptivos, NO inspirados en Disco Elysium)
     const arquetipos = [
       {
         id: 'logica',
-        nombre: 'LÓGICA',
-        descripcion: 'Análisis racional, causa-efecto, problem solving. Detective analítico.'
+        nombre: 'Cable a Tierra',
+        descripcion: 'Análisis racional, causa-efecto, problem solving. Pensamiento lógico y verificable.'
       },
       {
         id: 'retorica',
-        nombre: 'RETÓRICA',
-        descripcion: 'Cómo comunicar, performance social, qué decir y cómo. Social strategist.'
+        nombre: 'Performance Social',
+        descripcion: 'Cómo comunicar, timing, narrativa social. Qué decir y cómo performarlo.'
       },
       {
         id: 'electrochemistry',
-        nombre: 'ELECTROCHEMISTRY',
-        descripcion: 'Impulsos, cravings, "hazlo ya", dopamina, placer/dolor. Hedonist demon.'
+        nombre: 'Motor de Impulsos',
+        descripcion: 'Impulsos, cravings, "hazlo ya", dopamina, urgencia. Gratificación inmediata.'
       },
       {
         id: 'fisico',
-        nombre: 'FÍSICO',
-        descripcion: 'Hambre, cansancio, dolor, necesidades básicas del cuerpo. Body status monitor.'
+        nombre: 'Monitor Corporal',
+        descripcion: 'Hambre, cansancio, dolor, necesidades físicas básicas. Estado del cuerpo.'
       },
       {
         id: 'intuicion',
-        nombre: 'INTUICIÓN',
-        descripcion: 'Gut feelings, vibes, creatividad, conexiones raras. Mystical weirdo.'
+        nombre: 'Radar Interno',
+        descripcion: 'Gut feelings, vibes, conexiones inexplicables. Lo que se siente pero no se ve.'
       },
       {
         id: 'volicion',
-        nombre: 'VOLICIÓN',
-        descripcion: 'Willpower, autodisciplina, resistencia, "tú puedes". Inner coach.'
+        nombre: 'Fuerza de Voluntad',
+        descripcion: 'Disciplina, resistencia, compromiso interno. "Tú puedes hacerlo".'
       },
       {
         id: 'empatia',
-        nombre: 'EMPATÍA',
-        descripcion: 'Leer emociones propias y ajenas, sensibilidad social. Emotional intelligence.'
+        nombre: 'Sintonizador Emocional',
+        descripcion: 'Leer emociones propias y ajenas, sintonizar con otros. Inteligencia emocional.'
       },
       {
         id: 'ansiedad',
-        nombre: 'ANSIEDAD',
-        descripcion: 'Overthinking, worst-case scenarios, preocupaciones. Catastrophic thinker.'
+        nombre: 'Sistema de Alarma',
+        descripcion: 'Overthinking, worst-case scenarios, preocupaciones constantes. Detección de amenazas.'
       }
     ];
 
     // Construir prompt
-    const prompt = `Eres un experto en crear personajes de voces internas basados en perfiles de personalidad.
-
-Tu tarea es generar 8 voces internas personalizadas para un usuario con el siguiente perfil:
+    const prompt = `Eres un experto en crear voces internas basadas en arquetipos psicológicos y personalidad.
 
 **PERFIL DEL USUARIO:**
-- MBTI: ${userData.mbti}
-- Signo zodiacal: ${userData.signo}
-- Generación: ${userData.generacion}
-- Música favorita: ${userData.musica.join(', ')}
-- Películas favoritas: ${userData.peliculas.join(', ')}
-- Videojuegos favoritos: ${userData.videojuegos.join(', ')}
-- Alignment: ${userData.alignment}
-- Nivel de presencia online: ${nivelOnlineText} (${userData.nivelOnline}/5)
+- MBTI: ${userData.mbti || 'No especificado'}
+- Signo: ${userData.signo || 'No especificado'}
+- Generación: ${userData.generacion || 'No especificado'}
+- Música: ${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No especificado'}
+- Películas: ${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No especificado'}
+- Videojuegos: ${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No especificado'}
+- Alignment: ${userData.alignment || 'No especificado'}
+- Online: ${nivelOnlineText}
 
-**LAS 8 VOCES A PERSONALIZAR:**
+**ARQUETIPOS BASE (DEBES GENERAR LOS 8):**
 
-${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**
-   Arquetipo: ${arq.descripcion}`).join('\n\n')}
+${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).join('\n')}
 
-**INSTRUCCIONES:**
+**INSTRUCCIONES CRÍTICAS:**
 
-Para CADA voz, genera:
+⚠️ **IMPORTANTE**: DEBES generar EXACTAMENTE 8 voces, una por cada arquetipo listado arriba. No generes menos de 8 voces.
 
-1. **Nombre del personaje**: Un nombre creativo basado en las referencias culturales del usuario (películas, juegos, música). Puede ser en español o inglés, pero debe resonar con su perfil. Ejemplos: "The Architect" (Inception), "Snack Goblin" (internet culture), "Totoro's Whisper" (Ghibli).
 
-2. **Forma de hablar**:
-   - Vocabulario característico (2-3 palabras o frases que usa frecuentemente)
-   - Tipo de referencias que haría (de sus películas/juegos/música favoritos)
-   - Nivel de formalidad (basado en generación y personalidad MBTI)
-   - Uso de slang/modismos (especialmente si es muy online)
+1. **Nombres**: Deben estar SUTILMENTE inspirados en los gustos, pero NO ser referencias directas obvias
+   - ❌ DEMASIADO LITERAL: "GLadOS" (si puso Portal), "Godzilla" (si puso Godzilla), "Electrochemistry" (nombre del juego)
+   - ❌ DEMASIADO GENÉRICO: "El Analista", "El Estratega", "La Corazonada"
+   - ✅ SWEET SPOT: "Kaiju" (si puso Godzilla - referencia sutil), "Axioma" (si puso Portal - lógica/puzzles), "Covenant" (si puso Dark Souls - pactos), "Encore" (si puso K-Pop - shows)
+   - ✅ NO uses artículos ("El/La"), solo el nombre: "Axioma", "Kaiju", "Encore", "Síntesis"
 
-3. **Catchphrases**: 2 frases típicas que esta voz diría
+2. **Personalidad**: Usa el perfil para entender QUÉ REPRESENTA de la persona:
+   - MBTI: Define cómo procesa información (${userData.mbti})
+   - Gustos: Úsalos para INSPIRAR nombres sutilmente, NO para copiar referencias directas
+   - Alignment: Define su brújula moral (${userData.alignment})
+   - Online level: Define vocabulario y referencias (${nivelOnlineText})
 
-4. **Ejemplo de mensaje**: Un mensaje corto (1-2 líneas) que esta voz le diría al usuario en una situación típica
+3. **Idioma**: ESPAÑOL latino neutro con POCOS modismos en inglés
+   - ❌ MAL: Frases completas en inglés, demasiado slang
+   - ✅ BIEN: Español fluido con "lowkey", "literally", "vibe" cuando sea natural
 
-**IMPORTANTE:**
-- Las voces deben hablar principalmente en español latino neutro, pero pueden usar modismos en inglés típicos de Gen Z y cultura de internet
-- Las referencias deben ser específicas a las películas/juegos mencionados
-- El tono debe reflejar el MBTI (${userData.mbti})
-- Considera el nivel de presencia online: ${nivelOnlineText}
-- El alignment ${userData.alignment} debe influir en cómo cada voz juzga situaciones
+4. **Inspiración Sutil**: Si el usuario puso:
+   - Godzilla/Kaijus → "Kaiju", "Tremor", "Coloso"
+   - Portal → "Axioma", "Calibrador", "Protocolo"
+   - K-Pop → "Encore", "Fanchant", "Showcase"
+   - EDM/Electronic → "Síntesis", "Drop", "BPM"
+   - Dark Souls → "Estamina", "Covenant", "Bonfire"
+   - Terminally Online → "Doomscroll", "Timeline", "Thread"
 
-**FORMATO DE RESPUESTA:**
+Para CADA UNA de las 8 voces genera:
+- arquetipo: Nombre del arquetipo (Cable a Tierra, Performance Social, etc.)
+- nombre_personaje: Nombre abstracto que refleje su función psicológica
+- forma_de_hablar: vocabulario, referencias (sutiles, no literales), formalidad, slang (mínimo)
+- catchphrases: 2 frases en ESPAÑOL que esta voz diría
+- ejemplo_mensaje: Mensaje corto en ESPAÑOL (modismos inglés solo si es natural)
 
-Responde SOLO con un JSON válido con esta estructura (sin markdown, sin comentarios):
+**FORMATO (EXACTAMENTE 8 VOCES EN EL ARRAY):**
 
 {
   "voces": [
     {
-      "arquetipo": "LÓGICA",
+      "arquetipo": "Cable a Tierra",
       "nombre_personaje": "...",
       "forma_de_hablar": {
         "vocabulario": ["...", "...", "..."],
@@ -136,29 +150,52 @@ Responde SOLO con un JSON válido con esta estructura (sin markdown, sin comenta
       },
       "catchphrases": ["...", "..."],
       "ejemplo_mensaje": "..."
-    }
+    },
+    {
+      "arquetipo": "Performance Social",
+      "nombre_personaje": "...",
+      ...
+    },
+    ... (continuar hasta completar las 8 voces)
   ]
 }`;
 
-    // Llamar a Claude API
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      })
-    });
+    // Llamar a Claude API con timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 segundos timeout
+
+    try {
+      var response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+          model: modelName,
+          max_tokens: 4000,
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ]
+        }),
+        signal: controller.signal
+      });
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      if (fetchError.name === 'AbortError') {
+        return res.status(504).json({
+          error: 'La solicitud a Claude API tomó demasiado tiempo',
+          timeout: true
+        });
+      }
+      throw fetchError;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -179,6 +216,21 @@ Responde SOLO con un JSON válido con esta estructura (sin markdown, sin comenta
     }
 
     const voicesData = JSON.parse(jsonMatch[0]);
+
+    // Validar que se generaron exactamente 8 voces
+    if (!voicesData.voces || !Array.isArray(voicesData.voces)) {
+      return res.status(500).json({
+        error: 'Formato de respuesta inválido: no se encontró el array de voces'
+      });
+    }
+
+    if (voicesData.voces.length !== 8) {
+      console.error(`Se generaron ${voicesData.voces.length} voces en lugar de 8`);
+      return res.status(500).json({
+        error: `Se generaron ${voicesData.voces.length} voces en lugar de 8. Por favor intenta de nuevo.`,
+        details: { generatedCount: voicesData.voces.length }
+      });
+    }
 
     // Retornar las voces generadas
     return res.status(200).json({
