@@ -752,7 +752,7 @@ const Onboarding = ({ onComplete }) => {
                   key={genre}
                   onClick={() => handleMusicToggle(genre)}
                   disabled={!isSelected && userData.musica.length >= 3}
-                  className={`py-3 px-4 rounded-lg font-medium transition ${
+                  className={`py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg font-medium text-sm sm:text-base transition min-h-[3rem] sm:min-h-0 ${
                     isSelected
                       ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
                       : 'bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed'

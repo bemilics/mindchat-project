@@ -49,10 +49,18 @@ function App() {
     const savedDebugConfig = loadFromLocalStorage('mindchat_debug_config');
 
     if (savedUserData && savedVoices) {
+      console.log('[MindChat] Loading saved session:', {
+        userData: savedUserData,
+        voicesCount: savedVoices.length,
+        debugConfig: savedDebugConfig
+      });
+
       setUserData(savedUserData);
       setGeneratedVoices(savedVoices);
       setDebugConfig(savedDebugConfig);
       setCurrentView('chat');
+    } else {
+      console.log('[MindChat] No saved session found, starting onboarding');
     }
   }, []);
 
@@ -60,12 +68,20 @@ function App() {
     setUserData(data)
     setDebugConfig(config)
 
+    console.log('[MindChat] Onboarding complete:', { data, config });
+
+    // Limpiar voces anteriores antes de guardar nuevos datos
+    localStorage.removeItem('mindchat_voices');
+    localStorage.removeItem('mindchat_messages');
+    localStorage.removeItem('mindchat_messages_remaining');
+
     // Guardar userData y debugConfig
     saveToLocalStorage('mindchat_user_data', data);
     saveToLocalStorage('mindchat_debug_config', config);
 
     // Si es modo debug con perfil mock, usar voces pre-generadas
     if (config && config.profileType === 'mock') {
+      console.log('[MindChat] Using mock profile voices');
       // Importar dinámicamente el perfil debug
       const { debugVoices } = await import('./debugProfile.js')
       setGeneratedVoices(debugVoices)
@@ -76,6 +92,7 @@ function App() {
 
     // Si no es debug mock, generar voces con API
     // (incluye: normal flow, o debug con profileType === 'generate')
+    console.log('[MindChat] Generating voices with API, model:', config?.profileModel || 'haiku');
     setIsGeneratingVoices(true)
     setGenerationError(null)
 
@@ -100,6 +117,7 @@ function App() {
       }
 
       const responseData = await response.json()
+      console.log('[MindChat] Generated voices:', responseData);
 
       if (responseData.success && responseData.voces) {
         setGeneratedVoices(responseData.voces)
@@ -109,7 +127,7 @@ function App() {
         throw new Error('Respuesta inválida del servidor')
       }
     } catch (err) {
-      console.error('Error generating voices:', err)
+      console.error('[MindChat] Error generating voices:', err)
       setGenerationError(err.message)
     } finally {
       setIsGeneratingVoices(false)
