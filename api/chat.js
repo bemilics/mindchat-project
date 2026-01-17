@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { userMessage, voices, userData, conversationHistory } = req.body;
+    const { userMessage, voices, userData, conversationHistory, model } = req.body;
 
     // Validaciones
     if (!userMessage || !voices || !userData) {
@@ -16,6 +16,12 @@ export default async function handler(req, res) {
         error: 'userMessage, voices y userData son requeridos'
       });
     }
+
+    // Determinar qué modelo usar
+    // model puede ser: 'haiku', 'sonnet', o undefined (default: haiku)
+    const modelName = model === 'sonnet'
+      ? 'claude-sonnet-4-20250514'
+      : 'claude-3-5-haiku-20241022';
 
     // API key desde environment variables (segura en Vercel)
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -111,7 +117,7 @@ Responde AHORA en JSON:`;
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
+        model: modelName,
         max_tokens: 2000,
         system: systemPrompt,
         messages: messages

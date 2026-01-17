@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 
-const Chat = ({ voices: generatedVoices, userData, onReset, debugMode = null }) => {
+const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }) => {
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -59,12 +59,15 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugMode = null }) 
 
   // Generar respuestas de las voces usando el serverless function o mock (debug mode)
   const generateVoiceResponses = async (userMessage) => {
-    // Si está en modo debug full-mock, usar respuestas mock
-    if (debugMode === 'full-mock') {
+    // Si está en modo debug con chat mock, usar respuestas mock
+    if (debugConfig && debugConfig.chatModel === 'mock') {
       return generateMockResponses(userMessage);
     }
 
-    // Si está en modo hybrid o normal, usar API real
+    // Si no es mock, usar API real (determinar modelo)
+    // debugConfig puede ser null (flujo normal) o contener el chatModel
+
+    const modelToUse = debugConfig?.chatModel || 'haiku'; // Default: haiku
 
     try {
       const response = await fetch('/api/chat', {
@@ -76,7 +79,8 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugMode = null }) 
           userMessage: userMessage,
           voices: voices,
           userData: userData,
-          conversationHistory: messages
+          conversationHistory: messages,
+          model: modelToUse // Pasar el modelo específico
         })
       });
 
@@ -280,21 +284,34 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugMode = null }) 
               <h1 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
                 MINDCHAT
               </h1>
-              {debugMode === 'full-mock' && (
-                <span className="text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500 px-2 py-1 rounded font-mono">
-                  🐛 FULL MOCK
-                </span>
-              )}
-              {debugMode === 'hybrid' && (
-                <span className="text-xs bg-purple-500/20 text-purple-400 border border-purple-500 px-2 py-1 rounded font-mono">
-                  🔄 HYBRID
-                </span>
+              {debugConfig && (
+                <div className="flex gap-2">
+                  {/* Badge de Perfil */}
+                  <span className={`text-xs px-2 py-1 rounded font-mono ${
+                    debugConfig.profileType === 'mock'
+                      ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500'
+                      : 'bg-purple-500/20 text-purple-400 border border-purple-500'
+                  }`}>
+                    {debugConfig.profileType === 'mock' ? '🎭 Mock' : `🤖 ${debugConfig.profileModel === 'sonnet' ? 'Sonnet' : 'Haiku'}`}
+                  </span>
+
+                  {/* Badge de Chat */}
+                  <span className={`text-xs px-2 py-1 rounded font-mono ${
+                    debugConfig.chatModel === 'mock'
+                      ? 'bg-gray-600/50 text-gray-300 border border-gray-500'
+                      : debugConfig.chatModel === 'sonnet'
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500'
+                      : 'bg-green-500/20 text-green-400 border border-green-500'
+                  }`}>
+                    {debugConfig.chatModel === 'mock' ? '💾 Mock' : debugConfig.chatModel === 'sonnet' ? '🔵 Sonnet' : '🟢 Haiku'}
+                  </span>
+                </div>
               )}
             </div>
             <p className="text-sm text-gray-400">
-              {debugMode === 'full-mock' && 'Modo debug - Perfil preset + respuestas mock (no consume API)'}
-              {debugMode === 'hybrid' && 'Modo debug - Perfil preset + respuestas reales (consume API)'}
-              {!debugMode && 'Tu group chat interno'}
+              {debugConfig && debugConfig.chatModel === 'mock' && 'Modo debug - Perfil preset + respuestas mock (0 créditos)'}
+              {debugConfig && debugConfig.chatModel !== 'mock' && `Modo debug - ${debugConfig.profileType === 'mock' ? 'Perfil preset' : 'Perfil generado'} + Chat ${debugConfig.chatModel === 'sonnet' ? 'Sonnet' : 'Haiku'}`}
+              {!debugConfig && 'Tu group chat interno'}
             </p>
           </div>
 
@@ -324,7 +341,6 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugMode = null }) 
                 </div>
                 <div>
                   <div className={`text-xs font-medium ${voice.textColor}`}>{voice.shortName}</div>
-                  <div className="text-[10px] text-gray-500">{voice.name}</div>
                 </div>
               </div>
             ))}
@@ -374,7 +390,6 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugMode = null }) 
                     <span className={`font-semibold text-sm ${voice.textColor}`}>
                       {voice.shortName}
                     </span>
-                    <span className="text-xs text-gray-500">{voice.name}</span>
                     <span className="text-xs text-gray-600">
                       {msg.timestamp.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
                     </span>

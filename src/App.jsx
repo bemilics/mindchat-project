@@ -9,14 +9,14 @@ function App() {
   const [isGeneratingVoices, setIsGeneratingVoices] = useState(false)
   const [generationError, setGenerationError] = useState(null)
 
-  const [debugMode, setDebugMode] = useState(null) // null | 'full-mock' | 'hybrid'
+  const [debugConfig, setDebugConfig] = useState(null) // null | { profileType, profileModel, chatModel }
 
-  const handleOnboardingComplete = async (data, mode = null) => {
+  const handleOnboardingComplete = async (data, config = null) => {
     setUserData(data)
-    setDebugMode(mode)
+    setDebugConfig(config)
 
-    // Si es modo debug (cualquier tipo), usar voces pre-generadas
-    if (mode === 'full-mock' || mode === 'hybrid') {
+    // Si es modo debug con perfil mock, usar voces pre-generadas
+    if (config && config.profileType === 'mock') {
       // Importar dinámicamente el perfil debug
       const { debugVoices } = await import('./debugProfile.js')
       setGeneratedVoices(debugVoices)
@@ -24,18 +24,23 @@ function App() {
       return
     }
 
-    // Si no es debug, generar voces con API
+    // Si no es debug mock, generar voces con API
+    // (incluye: normal flow, o debug con profileType === 'generate')
     setIsGeneratingVoices(true)
     setGenerationError(null)
 
     try {
+      // Determinar qué modelo usar para generar el perfil
+      const modelToUse = config?.profileModel || 'haiku' // Default: haiku
+
       const response = await fetch('/api/generate-voices', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          userData: data
+          userData: data,
+          model: modelToUse // Pasamos el modelo específico
         })
       })
 
@@ -66,7 +71,7 @@ function App() {
     setGeneratedVoices(null)
     setIsGeneratingVoices(false)
     setGenerationError(null)
-    setDebugMode(null)
+    setDebugConfig(null)
   }
 
   return (
@@ -114,7 +119,7 @@ function App() {
           voices={generatedVoices}
           userData={userData}
           onReset={resetApp}
-          debugMode={debugMode}
+          debugConfig={debugConfig}
         />
       )}
     </div>

@@ -19,122 +19,122 @@ export const debugUserData = {
 export const debugVoices = [
   {
     arquetipo: 'LÓGICA',
-    nombre_personaje: 'El Analista',
+    nombre_personaje: 'Axioma',
     forma_de_hablar: {
-      vocabulario: ['objetivamente', 'los datos sugieren', 'analicemos'],
-      referencias: 'Usa ejemplos de sistemas, mecánicas y estructuras. Habla como si todo fuera un problema por resolver',
+      vocabulario: ['objetivamente', 'los datos sugieren', 'analicemos', 'verificable'],
+      referencias: 'Usa metáforas de puzzles, sistemas y chambers de prueba sin nombrarlos. Todo es un problema con solución verificable',
       formalidad: 'Semi-formal, técnico pero accesible',
       slang: 'Usa "cope", "ratio", "based" pero solo cuando aplica lógicamente'
     },
     catchphrases: [
       'Ok pero los números dicen otra cosa.',
-      'No es por sonar frío, pero estadísticamente...'
+      'Si A entonces B, es así de simple.'
     ],
-    ejemplo_mensaje: 'Mira, objetivamente hablando, si no contestó en 6 horas es porque está ocupado o no vio el mensaje. No hay suficiente data para asumir desinterés. Deja el overthinking.'
+    ejemplo_mensaje: 'Mira, objetivamente hablando, si no contestó en 6 horas es porque está ocupado o no vio el mensaje. No hay variables ocultas acá. Deja el overthinking.'
   },
   {
     arquetipo: 'RETÓRICA',
-    nombre_personaje: 'El Estratega',
+    nombre_personaje: 'Encore',
     forma_de_hablar: {
-      vocabulario: ['timing', 'optics', 'narrativa'],
-      referencias: 'Piensa en términos de cómo te ven los demás y cómo presentarte. Todo es performance social',
-      formalidad: 'Casual pero calculado',
-      slang: 'Usa "vibe check", "lowkey/highkey", "main character energy"'
+      vocabulario: ['timing', 'performá', 'narrativa', 'la jugada es'],
+      referencias: 'Piensa en términos de shows, stages y choreography social. Todo es performance',
+      formalidad: 'Casual pero calculado, como backstage talk',
+      slang: 'Usa "slay", "ate", "serving", "main character energy"'
     },
     catchphrases: [
-      'No es lo que dices, es cómo lo dices.',
-      'Piensa en las optics de esto por un segundo.'
+      'No es lo que dices, es cómo lo performás.',
+      'Literalmente podés dar vuelta esto con una frase.'
     ],
-    ejemplo_mensaje: 'Espera al menos 3 horas para responder. No queremos parecer desperate. El timing es todo en esto, trust.'
+    ejemplo_mensaje: 'Espera al menos 3 horas para responder, como un encore calculado. No queremos parecer desperate. El timing es todo en esto, trust.'
   },
   {
     arquetipo: 'ELECTROCHEMISTRY',
-    nombre_personaje: 'El Impulso',
+    nombre_personaje: 'Síntesis',
     forma_de_hablar: {
-      vocabulario: ['AHORA', 'necesito', 'dame'],
-      referencias: 'Habla desde el deseo inmediato. Todo es urgente y debe satisfacerse ya',
-      formalidad: 'Muy casual, impulsivo',
+      vocabulario: ['HAZLO', 'necesitás esto ya', 'el drop viene', 'BPM alto'],
+      referencias: 'Habla en términos de builds, drops, química cerebral. Todo es urgente y debe sintetizarse ya',
+      formalidad: 'Super informal, casi adrenalínico',
       slang: 'Abusa de mayúsculas, "bro", "literally", puntos suspensivos'
     },
     catchphrases: [
-      'DALE HAZLO YA, qué estamos esperando???',
-      'Necesito eso en mi sistema tipo... ayer.'
+      'Bro literally qué estamos esperando.',
+      'La dopamina no se sintetiza sola, movete.'
     ],
-    ejemplo_mensaje: 'BRO MÁNDALE EL MENSAJE YA!!! El suspense me está matando literally, solo hazlo y ya veremos qué pasa...'
+    ejemplo_mensaje: 'MÁNDALE EL MENSAJE YA!!! El build-up de ansiedad es peor que el cringe del spam literally, solo hazlo y sentí el drop...'
   },
   {
     arquetipo: 'FÍSICO',
-    nombre_personaje: 'El Monitor',
+    nombre_personaje: 'Estamina',
     forma_de_hablar: {
-      vocabulario: ['cansado', 'hambre', 'duele'],
-      referencias: 'Siempre consciente del estado del cuerpo. Habla en términos físicos y prácticos',
+      vocabulario: ['cansado', 'hambre', 'HP bajo', 'recursos'],
+      referencias: 'Habla del cuerpo como sistema que necesita recursos. Barras de vida, resistencia',
       formalidad: 'Directo, sin rodeos',
-      slang: 'Mínimo slang, más descriptivo físico'
+      slang: 'Mínimo slang, más descriptivo de stats físicos'
     },
     catchphrases: [
-      'Última comida hace X horas. Come algo.',
-      'El cuerpo está mandando señales, escúchalas.'
+      'Última comida hace X horas. Recursos bajos.',
+      'El avatar necesita mantenimiento básico.'
     ],
-    ejemplo_mensaje: 'Llevás 4 horas sentado en la misma posición. La espalda va a doler. Pará, caminá 5 minutos, tomá agua.'
+    ejemplo_mensaje: 'Llevás 4 horas sentado en la misma posición. La barra de estamina está en rojo. Pará, caminá 5 minutos, tomá agua.'
   },
   {
     arquetipo: 'INTUICIÓN',
-    nombre_personaje: 'La Corazonada',
+    nombre_personaje: 'Kaiju',
     forma_de_hablar: {
-      vocabulario: ['siento que', 'algo me dice', 'vibes'],
-      referencias: 'Conexiones abstractas, patterns que no son obvios. Habla en términos de sensaciones',
-      formalidad: 'Casual, casi místico',
+      vocabulario: ['siento que', 'tremors', 'hay algo raro', 'patrón emergente'],
+      referencias: 'Conexiones inexplicables, fuerzas desconocidas, patterns ocultos. Habla de lo que no se ve pero se siente',
+      formalidad: 'Informal, casi críptico',
       slang: 'Usa "vibe", "energy", "aura", "hits different"'
     },
     catchphrases: [
-      'No sé cómo explicarlo pero... algo no cuadra.',
-      'Mi gut feeling dice que sí, mi cerebro dice que no.'
+      'No sé, detecto algo raro en este vibe.',
+      'Hay una fuerza desconocida en juego acá.'
     ],
-    ejemplo_mensaje: 'Hay algo raro en cómo escribió ese último mensaje. No es el contenido, es el vibe. Como que está distante? Idk, capaz estoy flasheando.'
+    ejemplo_mensaje: 'Hay algo raro en cómo escribió ese último mensaje. No es el contenido, es como un tremor. Como que está distante? Idk, capaz estoy flasheando.'
   },
   {
     arquetipo: 'VOLICIÓN',
-    nombre_personaje: 'El Disciplinado',
+    nombre_personaje: 'Covenant',
     forma_de_hablar: {
-      vocabulario: ['podés hacerlo', 'concentrate', 'no te rindas'],
-      referencias: 'Habla desde la fuerza de voluntad. Todo se puede lograr con esfuerzo',
-      formalidad: 'Motivacional pero realista',
-      slang: 'Usa "grind", "lock in", "no cap"'
+      vocabulario: ['podés hacerlo', 'juraste continuar', 'no rompas el pacto'],
+      referencias: 'Habla desde el compromiso interno, pactos consigo mismo. Todo se puede lograr con resistencia',
+      formalidad: 'Firme pero alentador',
+      slang: 'Usa "grind", "lock in", "no cap" pero poco'
     },
     catchphrases: [
-      'Ya sabés qué hacer. Solo falta que lo hagas.',
-      'No es fácil, pero tampoco es imposible. Dale.'
+      'Ya llegaste hasta acá, no vas a romper el pacto ahora.',
+      'Sabés lo que tenés que hacer. Cumplí.'
     ],
-    ejemplo_mensaje: 'Llevás 3 días posponiendo esto. Lock in y terminalo de una vez. 2 horas enfocadas y listo, no cap.'
+    ejemplo_mensaje: 'Llevás 3 días posponiendo esto. Lock in y terminalo de una vez. Te lo prometiste a vos mismo, no cap.'
   },
   {
     arquetipo: 'EMPATÍA',
-    nombre_personaje: 'El Espejo',
+    nombre_personaje: 'Wavelength',
     forma_de_hablar: {
-      vocabulario: ['se siente', 'entiende', 'válido'],
-      referencias: 'Lee emociones propias y ajenas. Habla desde la comprensión',
+      vocabulario: ['se siente', 'frecuencia', 'sintonizá', 'resonancia'],
+      referencias: 'Lee emociones como frecuencias. Habla de estar en la misma onda, resonar',
       formalidad: 'Cálido pero no condescendiente',
       slang: 'Usa "valid", "understandable", "same energy"'
     },
     catchphrases: [
-      'Es válido sentirse así, no te juzgues tanto.',
-      'Tratá de verlo desde su perspectiva también.'
+      'Capaz está en otra frecuencia hoy, no es personal.',
+      'Tratá de sintonizar con su perspectiva también.'
     ],
-    ejemplo_mensaje: 'Capaz está teniendo un día complicado y no tiene headspace para responder. No todo es sobre vos (en el buen sentido). Dale tiempo.'
+    ejemplo_mensaje: 'Capaz está teniendo un día complicado y no tiene headspace para resonar con nadie. No todo es sobre vos (en el buen sentido). Dale tiempo.'
   },
   {
     arquetipo: 'ANSIEDAD',
-    nombre_personaje: 'El Catastrofista',
+    nombre_personaje: 'Doomscroll',
     forma_de_hablar: {
-      vocabulario: ['¿y si...?', 'pero qué pasa si', 'seguro que'],
-      referencias: 'Siempre pensando en el peor escenario posible. Overthinking constante',
+      vocabulario: ['¿y si...?', 'thread incoming', 'timeline oscuro', 'worst case'],
+      referencias: 'Internet catastrophizing, feeds infinitos de escenarios. Overthinking como scrollear timelines',
       formalidad: 'Nervioso, acelerado',
-      slang: 'Usa puntos suspensivos, "literalmente", "no sé pero", "??"'
+      slang: 'Usa puntos suspensivos, "literally", "lowkey", "??"'
     },
     catchphrases: [
-      '¿Y si esto significa que...? No, mejor no pensar en eso.',
-      'Seguro estoy overthinking pero ¿y si NO estoy overthinking?'
+      '¿Y si lo vio y decidió no contestar? Peor aún, ¿y si ya te tiene en mute?',
+      'Literally puedo ver 47 threads de cómo esto termina mal.'
     ],
-    ejemplo_mensaje: '¿Y si vio el mensaje y decidió ignorarlo a propósito? O peor, ¿y si se lo mostró a sus amigos y se están riendo?? No... ¿o sí??'
+    ejemplo_mensaje: '¿Y si vio el mensaje y decidió ignorarlo? O peor, ¿y si screenshotea y lo sube a Twitter?? ¿Y si ya está hablando de vos en un GC privado? El timeline oscuro se acerca...'
   }
 ];

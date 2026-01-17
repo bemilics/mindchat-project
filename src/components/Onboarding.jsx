@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 const Onboarding = ({ onComplete }) => {
   const [step, setStep] = useState(1);
   const [showDebugMenu, setShowDebugMenu] = useState(false);
+  const [debugStep, setDebugStep] = useState(1); // Para el wizard del debug
+  const [debugProfileType, setDebugProfileType] = useState(null); // 'mock' | 'generate'
   const [userData, setUserData] = useState({
     // Manual inputs
     mbti: '',
@@ -220,12 +222,31 @@ const Onboarding = ({ onComplete }) => {
     }
   };
 
-  const handleDebugMode = async (mode) => {
-    // Cargar perfil debug
-    const { debugUserData } = await import('../debugProfile.js');
-    // mode: 'full-mock' | 'hybrid'
-    onComplete(debugUserData, mode);
+  const handleDebugMode = async (profileType, profileModel, chatModel) => {
+    // profileType: 'mock' | 'generate'
+    // profileModel: null | 'haiku' | 'sonnet' (null si profileType es 'mock')
+    // chatModel: 'mock' | 'haiku' | 'sonnet'
+
+    const debugConfig = {
+      profileType,
+      profileModel,
+      chatModel
+    };
+
+    if (profileType === 'mock') {
+      // Cargar perfil preset
+      const { debugUserData } = await import('../debugProfile.js');
+      onComplete(debugUserData, debugConfig);
+    } else {
+      // profileType === 'generate', necesitamos generar el perfil con API
+      const { debugUserData } = await import('../debugProfile.js');
+      // Pasamos userData base para que genere con API
+      onComplete(debugUserData, debugConfig);
+    }
+
     setShowDebugMenu(false);
+    setDebugStep(1);
+    setDebugProfileType(null);
   };
 
   const renderStep = () => {
@@ -278,55 +299,226 @@ const Onboarding = ({ onComplete }) => {
               {/* Debug Menu Modal */}
               {showDebugMenu && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-                  <div className="bg-gray-800 rounded-lg p-6 max-w-md w-full border border-gray-700">
+                  <div className="bg-gray-800 rounded-lg p-6 max-w-2xl w-full border border-gray-700">
                     <div className="space-y-4">
+                      {/* Header */}
                       <div className="space-y-2">
-                        <h3 className="text-xl font-bold text-white">🐛 Modo Debug</h3>
+                        <h3 className="text-xl font-bold text-white">
+                          🐛 Modo Debug {debugStep === 2 && `- Paso 2 de 2`}
+                        </h3>
                         <p className="text-sm text-gray-400">
-                          Selecciona cómo quieres usar el modo debug:
+                          {debugStep === 1
+                            ? "Paso 1: Selecciona el tipo de perfil"
+                            : "Paso 2: Selecciona los modelos a usar"}
                         </p>
                       </div>
 
-                      <div className="space-y-3">
-                        {/* Opción 1: Full Mock */}
-                        <button
-                          onClick={() => handleDebugMode('full-mock')}
-                          className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white p-4 rounded-lg text-left transition"
-                        >
-                          <div className="font-bold mb-1">
-                            💾 Full Mock (Sin API)
-                          </div>
-                          <div className="text-sm text-white/80">
-                            Perfil preset + respuestas mock
-                          </div>
-                          <div className="text-xs text-white/60 mt-1">
-                            ✅ No consume créditos • Respuestas instantáneas
-                          </div>
-                        </button>
+                      {/* Step 1: Tipo de Perfil */}
+                      {debugStep === 1 && (
+                        <div className="space-y-3">
+                          <button
+                            onClick={() => {
+                              setDebugProfileType('mock');
+                              setDebugStep(2);
+                            }}
+                            className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-500 hover:to-orange-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🎭 Mock Profile (Preset)
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Usar perfil pre-generado (ISTJ, Capricornio, Gen Z, etc.)
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              ✅ No consume créditos para el perfil • Voces ya creadas
+                            </div>
+                          </button>
 
-                        {/* Opción 2: Hybrid */}
+                          <button
+                            onClick={() => {
+                              setDebugProfileType('generate');
+                              setDebugStep(2);
+                            }}
+                            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🤖 Generate Profile (API)
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Generar voces con Claude API usando perfil preset
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              ⚠️ Consume créditos para generar voces
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Step 2: Modelos - Si Mock Profile */}
+                      {debugStep === 2 && debugProfileType === 'mock' && (
+                        <div className="space-y-3">
+                          <p className="text-xs text-gray-400 mb-2">
+                            Perfil: <span className="text-yellow-400 font-bold">🎭 Mock</span> • Selecciona modelo para el chat:
+                          </p>
+
+                          <button
+                            onClick={() => handleDebugMode('mock', null, 'mock')}
+                            className="w-full bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              💾 Mock Chat
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Respuestas mock hardcodeadas
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              ✅ 0 créditos • Instantáneo
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => handleDebugMode('mock', null, 'haiku')}
+                            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🟢 Haiku Chat
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Claude 3.5 Haiku para respuestas
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              💰 ~$0.001/mensaje • Rápido y económico
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => handleDebugMode('mock', null, 'sonnet')}
+                            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white p-4 rounded-lg text-left transition"
+                          >
+                            <div className="font-bold mb-1">
+                              🔵 Sonnet Chat
+                            </div>
+                            <div className="text-sm text-white/80">
+                              Claude Sonnet 4 para respuestas premium
+                            </div>
+                            <div className="text-xs text-white/60 mt-1">
+                              💎 ~$0.02/mensaje • Máxima calidad
+                            </div>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Step 2: Modelos - Si Generate Profile */}
+                      {debugStep === 2 && debugProfileType === 'generate' && (
+                        <div className="space-y-3">
+                          <p className="text-xs text-gray-400 mb-2">
+                            Perfil: <span className="text-purple-400 font-bold">🤖 Generate</span> • Selecciona modelos para perfil y chat:
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            {/* Haiku + Haiku */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'haiku', 'haiku')}
+                              className="bg-gradient-to-br from-green-600 to-green-700 hover:from-green-500 hover:to-green-600 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🟢 Haiku + 🟢 Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Haiku
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💰 ~$0.005 total
+                              </div>
+                            </button>
+
+                            {/* Haiku + Sonnet */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'haiku', 'sonnet')}
+                              className="bg-gradient-to-br from-green-600 via-teal-600 to-blue-600 hover:from-green-500 hover:via-teal-500 hover:to-blue-500 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🟢 Haiku + 🔵 Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Sonnet
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💰 ~$0.024 total
+                              </div>
+                            </button>
+
+                            {/* Sonnet + Haiku */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'sonnet', 'haiku')}
+                              className="bg-gradient-to-br from-blue-600 via-teal-600 to-green-600 hover:from-blue-500 hover:via-teal-500 hover:to-green-500 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🔵 Sonnet + 🟢 Haiku
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Haiku
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💰 ~$0.061 total
+                              </div>
+                            </button>
+
+                            {/* Sonnet + Sonnet */}
+                            <button
+                              onClick={() => handleDebugMode('generate', 'sonnet', 'sonnet')}
+                              className="bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white p-4 rounded-lg text-left transition"
+                            >
+                              <div className="font-bold text-sm mb-1">
+                                🔵 Sonnet + 🔵 Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Perfil: Sonnet
+                              </div>
+                              <div className="text-xs text-white/80">
+                                Chat: Sonnet
+                              </div>
+                              <div className="text-xs text-white/60 mt-1">
+                                💎 ~$0.08 total
+                              </div>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Botones de navegación */}
+                      <div className="flex gap-2">
+                        {debugStep === 2 && (
+                          <button
+                            onClick={() => {
+                              setDebugStep(1);
+                              setDebugProfileType(null);
+                            }}
+                            className="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded-lg text-sm font-medium transition"
+                          >
+                            ← Atrás
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleDebugMode('hybrid')}
-                          className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white p-4 rounded-lg text-left transition"
+                          onClick={() => {
+                            setShowDebugMenu(false);
+                            setDebugStep(1);
+                            setDebugProfileType(null);
+                          }}
+                          className="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded-lg text-sm transition"
                         >
-                          <div className="font-bold mb-1">
-                            🔄 Hybrid (Con API)
-                          </div>
-                          <div className="text-sm text-white/80">
-                            Perfil preset + respuestas reales de Claude
-                          </div>
-                          <div className="text-xs text-white/60 mt-1">
-                            ⚠️ Consume créditos • Respuestas personalizadas
-                          </div>
+                          Cancelar
                         </button>
                       </div>
-
-                      <button
-                        onClick={() => setShowDebugMenu(false)}
-                        className="w-full bg-gray-700 hover:bg-gray-600 text-gray-300 py-2 px-4 rounded-lg text-sm transition"
-                      >
-                        Cancelar
-                      </button>
                     </div>
                   </div>
                 </div>

@@ -8,12 +8,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { userData } = req.body;
+    const { userData, model } = req.body;
 
     // Validar que userData existe
     if (!userData) {
       return res.status(400).json({ error: 'userData es requerido' });
     }
+
+    // Determinar qué modelo usar
+    // model puede ser: 'haiku', 'sonnet', o undefined (default: haiku)
+    const modelName = model === 'sonnet'
+      ? 'claude-sonnet-4-20250514'
+      : 'claude-3-5-haiku-20241022';
 
     // API key desde environment variables (segura en Vercel)
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -95,13 +101,15 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
 
 **INSTRUCCIONES CRÍTICAS:**
 
-1. **Nombres**: Deben ser ABSTRACTOS y representar la función psicológica, NO referencias literales a los gustos del usuario
-   - ❌ MAL: "Inland Empire", "The Portal", "Electrochemistry" (demasiado literal)
-   - ✅ BIEN: "El Analista", "La Corazonada", "El Impulso", "El Estratega"
+1. **Nombres**: Deben estar SUTILMENTE inspirados en los gustos, pero NO ser referencias directas obvias
+   - ❌ DEMASIADO LITERAL: "GLadOS" (si puso Portal), "Godzilla" (si puso Godzilla), "Electrochemistry" (nombre del juego)
+   - ❌ DEMASIADO GENÉRICO: "El Analista", "El Estratega", "La Corazonada"
+   - ✅ SWEET SPOT: "Kaiju" (si puso Godzilla - referencia sutil), "Axioma" (si puso Portal - lógica/puzzles), "Covenant" (si puso Dark Souls - pactos), "Encore" (si puso K-Pop - shows)
+   - ✅ NO uses artículos ("El/La"), solo el nombre: "Axioma", "Kaiju", "Encore", "Síntesis"
 
 2. **Personalidad**: Usa el perfil para entender QUÉ REPRESENTA de la persona:
    - MBTI: Define cómo procesa información (${userData.mbti})
-   - Gustos: Indican valores y prioridades, NO son para copiar nombres
+   - Gustos: Úsalos para INSPIRAR nombres sutilmente, NO para copiar referencias directas
    - Alignment: Define su brújula moral (${userData.alignment})
    - Online level: Define vocabulario y referencias (${nivelOnlineText})
 
@@ -109,7 +117,13 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
    - ❌ MAL: Frases completas en inglés, demasiado slang
    - ✅ BIEN: Español fluido con "lowkey", "literally", "vibe" cuando sea natural
 
-4. **Abstracción**: Las voces son arquetipos universales adaptados, NO personajes de las referencias del usuario
+4. **Inspiración Sutil**: Si el usuario puso:
+   - Godzilla/Kaijus → "Kaiju", "Tremor", "Coloso"
+   - Portal → "Axioma", "Calibrador", "Protocolo"
+   - K-Pop → "Encore", "Fanchant", "Showcase"
+   - EDM/Electronic → "Síntesis", "Drop", "BPM"
+   - Dark Souls → "Estamina", "Covenant", "Bonfire"
+   - Terminally Online → "Doomscroll", "Timeline", "Thread"
 
 Para CADA voz genera:
 - nombre_personaje: Nombre abstracto que refleje su función psicológica
@@ -145,7 +159,7 @@ Para CADA voz genera:
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',
+        model: modelName,
         max_tokens: 4000,
         messages: [
           {
