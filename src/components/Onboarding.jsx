@@ -206,9 +206,8 @@ const Onboarding = ({ onComplete }) => {
         return true; // All optional
       case 3: // MBTI Test
         return !needsMBTITest;
-      case 4: // Fecha/Generacion
-        if (needsSigno && !userData.fechaNacimiento) return false;
-        if (needsGeneracion && !userData.anioNacimiento) return false;
+      case 4: // Fecha Nacimiento (para signo y generación)
+        if ((needsSigno || needsGeneracion) && !userData.fechaNacimiento) return false;
         return true;
       case 5: // Música
         return userData.musica.length === 3;
@@ -691,43 +690,38 @@ const Onboarding = ({ onComplete }) => {
       );
     }
 
-    // Step 4: Fecha Nacimiento / Generación
+    // Step 4: Fecha Nacimiento (para signo y generación)
     if (step === 4 && (needsSigno || needsGeneracion)) {
       return (
         <div className="space-y-6">
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-white">Últimos datos básicos</h2>
-            <p className="text-gray-400">Para afinar tu perfil</p>
+            <p className="text-gray-400">Para calcular tu signo y generación</p>
           </div>
 
           <div className="space-y-4">
-            {needsSigno && (
-              <div>
-                <label className="block text-sm text-gray-300 mb-2">Fecha de nacimiento</label>
-                <input
-                  type="date"
-                  value={userData.fechaNacimiento}
-                  onChange={(e) => setUserData({ ...userData, fechaNacimiento: e.target.value })}
-                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2"
-                />
-                <p className="text-xs text-gray-500 mt-1">Para calcular tu signo zodiacal</p>
-              </div>
-            )}
-
-            {needsGeneracion && (
-              <div>
-                <label className="block text-sm text-gray-300 mb-2">Año de nacimiento</label>
-                <input
-                  type="number"
-                  min="1920"
-                  max="2025"
-                  placeholder="Ej: 1998"
-                  value={userData.anioNacimiento}
-                  onChange={(e) => setUserData({ ...userData, anioNacimiento: e.target.value })}
-                  className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2"
-                />
-              </div>
-            )}
+            <div>
+              <label className="block text-sm text-gray-300 mb-2">Fecha de nacimiento</label>
+              <input
+                type="date"
+                value={userData.fechaNacimiento}
+                onChange={(e) => {
+                  const fecha = e.target.value;
+                  setUserData({
+                    ...userData,
+                    fechaNacimiento: fecha,
+                    // Extraer año automáticamente
+                    anioNacimiento: fecha ? new Date(fecha).getFullYear().toString() : ''
+                  });
+                }}
+                className="w-full bg-gray-800 text-white border border-gray-700 rounded-lg px-4 py-2"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {needsSigno && needsGeneracion && 'Para calcular tu signo zodiacal y generación'}
+                {needsSigno && !needsGeneracion && 'Para calcular tu signo zodiacal'}
+                {!needsSigno && needsGeneracion && 'Para calcular tu generación'}
+              </p>
+            </div>
           </div>
 
           <button
