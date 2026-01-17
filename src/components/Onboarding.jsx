@@ -212,7 +212,7 @@ const Onboarding = ({ onComplete }) => {
       case 5: // Música
         return userData.musica.length === 3;
       case 6: // Películas
-        return userData.peliculas.filter(p => p.trim()).length === 3;
+        return userData.peliculas.filter(p => p.trim()).length >= 1;
       case 7: // Videojuegos
         return true; // Optional
       case 8: // Alignment
@@ -781,7 +781,7 @@ const Onboarding = ({ onComplete }) => {
         <div className="space-y-6">
           <div className="space-y-2">
             <h2 className="text-2xl font-bold text-white">Cinema favorites</h2>
-            <p className="text-gray-400">Tus 3 películas favoritas (las que ves una y otra vez)</p>
+            <p className="text-gray-400">Tus películas favoritas (mínimo 1, máximo 3)</p>
           </div>
 
           <div className="space-y-3">
@@ -789,7 +789,7 @@ const Onboarding = ({ onComplete }) => {
               <input
                 key={idx}
                 type="text"
-                placeholder={`Película ${idx + 1}`}
+                placeholder={idx === 0 ? 'Película 1 (requerida)' : `Película ${idx + 1} (opcional)`}
                 value={pelicula}
                 onChange={(e) => {
                   const newPeliculas = [...userData.peliculas];
