@@ -505,7 +505,7 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
                   </div>
                   <div className="text-gray-300">
                     {/* Parse @mentions */}
-                    {msg.text.split(/(@[\w\s]+)/g).map((part, i) => {
+                    {msg.text.split(/(@[^\s,.!?;:]+)/g).map((part, i) => {
                       if (part.startsWith('@')) {
                         return (
                           <span key={i} className="text-blue-400 font-medium">
