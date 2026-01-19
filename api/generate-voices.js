@@ -103,34 +103,66 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
 
 ⚠️ **IMPORTANTE**: DEBES generar EXACTAMENTE 8 voces, una por cada arquetipo listado arriba. No generes menos de 8 voces.
 
+🎭 **TONO GENERAL**: Esta app es CHISTOSA y DIVERTIDA. Las voces deben ser EXAGERADAS, con personalidades FUERTES y DISTINTIVAS. Nada genérico o aburrido.
 
-1. **Nombres**: Deben estar SUTILMENTE inspirados en los gustos, pero NO ser referencias directas obvias
-   - ❌ DEMASIADO LITERAL: Copiar nombres de personajes, lugares o elementos directamente de sus gustos
+1. **Nombres**: DEBEN ser en ESPAÑOL (salvo conceptos muy específicos que solo funcionen en inglés)
+   - ✅ ESPAÑOL: "Vértigo", "Chispa", "Eco", "Brújula", "Impulso", "Ancla", "Torbellino", "Brasa"
+   - ⚠️ Solo inglés si es un concepto técnico/específico que pierde sentido traducido
+   - ❌ DEMASIADO LITERAL: Copiar nombres de personajes, lugares o elementos directamente
    - ❌ DEMASIADO GENÉRICO: "El Analista", "El Estratega", "La Corazonada"
-   - ✅ SWEET SPOT: Nombres abstractos que evoquen SENSACIONES, MECÁNICAS o TEMAS de sus gustos
+   - ✅ SWEET SPOT: Nombres abstractos en español que sean MEMORABLES y CHISTOSOS
    - ✅ NO uses artículos ("El/La"), solo el nombre
-   - ✅ Crea nombres ORIGINALES que nadie más tendría - piensa en metáforas únicas
+   - ✅ Crea nombres ORIGINALES y con PERSONALIDAD - piensa en metáforas únicas
 
-2. **Personalidad**: Usa el perfil para entender QUÉ REPRESENTA de la persona:
-   - MBTI: Define cómo procesa información (${userData.mbti})
-   - Gustos: Úsalos para INSPIRAR nombres sutilmente, NO para copiar referencias directas
-   - Alignment: Define su brújula moral (${userData.alignment})
-   - Online level: Define vocabulario y referencias (${nivelOnlineText})
+2. **Personalidad EXAGERADA basada en MBTI + Signo + Alignment**:
+
+   **MBTI (${userData.mbti || 'No especificado'})**:
+   - E (Extrovertido): Voces más extrovertidas, sociables, performativas, hablan MÁS
+   - I (Introvertido): Voces más introspectivas, analíticas, concisas, hablan MENOS pero más profundo
+   - S (Sensorial): Voces prácticas, concretas, hablan de lo tangible y real
+   - N (Intuitivo): Voces abstractas, metafóricas, hablan de posibilidades y patrones
+   - T (Pensamiento): Voces lógicas, directas, sin filtro emocional, a veces frías
+   - F (Sentimiento): Voces empáticas, emocionales, consideradas, a veces dramáticas
+   - J (Calificador): Voces organizadas, planificadoras, estructuradas, a veces controladoras
+   - P (Perceptivo): Voces espontáneas, flexibles, caóticas, a veces procrastinadoras
+
+   **Signo Zodiacal (${userData.signo || 'No especificado'})**:
+   - Fuego (Aries, Leo, Sagitario): Impulsivas, apasionadas, intensas, dramáticas
+   - Tierra (Tauro, Virgo, Capricornio): Prácticas, terrenales, escépticas, realistas
+   - Aire (Géminis, Libra, Acuario): Intelectuales, sociales, cambiantes, cerebrales
+   - Agua (Cáncer, Escorpio, Piscis): Emocionales, intuitivas, profundas, intensas
+
+   **Alignment (${userData.alignment || 'No especificado'})**:
+   - Lawful: Voces que citan reglas, normas, "deberías", estructuradas
+   - Neutral: Voces pragmáticas, "depende", situacionales
+   - Chaotic: Voces rebeldes, "fuck it", anti-sistema, espontáneas
+   - Good: Voces empáticas, altruistas, consideradas con otros
+   - Neutral: Voces egoístas pero no crueles, "yo primero"
+   - Evil: Voces maquiavélicas, manipuladoras, "gana a toda costa"
+
+   **🎯 IMPORTANTE**: Combina estos 3 elementos para crear voces ÚNICAS y EXAGERADAS. Ejemplo:
+   - INTJ + Capricornio + Lawful Evil = Voz ultra fría, calculadora, manipuladora, obsesionada con la eficiencia
+   - ENFP + Sagitario + Chaotic Good = Voz hiperactiva, optimista caótica, impulsiva pero bien intencionada
 
 3. **Idioma**: ESPAÑOL latino neutro con POCOS modismos en inglés
    - ❌ MAL: Frases completas en inglés, demasiado slang
    - ✅ BIEN: Español fluido con "lowkey", "literally", "vibe" cuando sea natural
 
-4. **Inspiración Sutil**: Los nombres deben ser ÚNICOS y originales basados en los gustos del usuario
-   - Toma conceptos ABSTRACTOS de sus películas/juegos/música favoritos
-   - Si algún campo está vacío o dice "No especificado", usa MBTI, alignment y nivel online para inspirarte
-   - NO copies nombres de personajes, lugares o elementos directamente
-   - Piensa en SENSACIONES, MECÁNICAS, TEMAS que representen esos medios
-   - Cada perfil debe generar nombres COMPLETAMENTE DIFERENTES
-   - Usa el MBTI y alignment para definir el tono de los nombres
+4. **Inspiración de Gustos**:
+   - Música (${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No especificado'}): Usa el RITMO, ENERGÍA, VIBE del género para influir en cómo habla
+   - Películas (${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No especificado'}): Usa TEMAS, TONOS, ESTÉTICA para influir en referencias
+   - Videojuegos (${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No especificado'}): Usa MECÁNICAS, CONCEPTOS para metáforas
+   - Si faltan datos, INTENSIFICA el uso de MBTI + Signo + Alignment para compensar
    - NUNCA uses estos nombres: Axioma, Encore, Síntesis, Estamina, Kaiju, Covenant, Wavelength, Doomscroll
 
-**IMPORTANTE**: NO reutilices nombres de perfiles anteriores. Cada perfil es ÚNICO. Cada generación debe crear 8 nombres NUEVOS.
+5. **Rasgos FUERTES y DISTINTIVOS**:
+   - Cada voz debe tener una PERSONALIDAD MARCADA que la diferencie de las otras 7
+   - Usa vocabulario ESPECÍFICO y ÚNICO para cada voz
+   - Las catchphrases deben ser MEMORABLES y CHISTOSAS
+   - Exagera los rasgos para que sean INOLVIDABLES
+   - Piensa en las voces como PERSONAJES de una comedia, no asistentes genéricos
+
+**IMPORTANTE**: NO reutilices nombres de perfiles anteriores. Cada perfil es ÚNICO. Cada generación debe crear 8 nombres NUEVOS y 8 personalidades COMPLETAMENTE DIFERENTES.
 
 Para CADA UNA de las 8 voces genera:
 - arquetipo: Nombre del arquetipo (Cable a Tierra, Performance Social, etc.)

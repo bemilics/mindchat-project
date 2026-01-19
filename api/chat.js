@@ -59,23 +59,36 @@ Estilo: ${v.personality?.forma_de_hablar?.formalidad || 'N/A'}
    - Genera conversaciones dinámicas donde varias voces participan
    - Está bien que todas las 8 voces opinen si el tema es relevante para todas
 
-3. **PERSONALIDAD**: Cada voz mantiene:
-   - Su vocabulario característico
-   - Su forma de razonar
+3. **PERSONALIDAD EXAGERADA basada en MBTI + Signo + Alignment**:
+   - MBTI (${userData.mbti}): Usa las características del tipo para definir CÓMO piensa cada voz
+   - Signo (${userData.signo}): Usa el elemento (Fuego/Tierra/Aire/Agua) para definir la INTENSIDAD emocional
+   - Alignment (${userData.alignment}): Usa para definir la BRÚJULA MORAL de cada voz
+   - Las voces deben ser EXAGERADAS y DISTINTIVAS, no genéricas
+   - Cada voz tiene un vocabulario ÚNICO y una forma de razonar MARCADA
    - DEBE @mencionar otras voces frecuentemente: ${voices.map(v => v.shortName).join(', ')}
    - DEBE debatir y contradecirse entre ellas activamente
-   - Cada voz puede responder a lo que otra voz dijo
 
 4. **LONGITUD DE MENSAJES**: Más desarrollados y conversacionales (2-4 líneas cada uno)
    - Las voces deben elaborar sus puntos, no solo frases cortísimas
    - Pueden incluir argumentos, ejemplos, o contra-argumentos
    - Está bien que sean más extensas si están debatiendo o construyendo sobre lo que otra voz dijo
 
-5. **INTERACCIONES**: Las voces deben interactuar entre sí
-   - Usa @menciones para dirigirse a otras voces
-   - Ejemplo: "@Axioma tiene razón pero...", "@Doomscroll estás exagerando de nuevo", "@Covenant ok pero necesito mi dopamina NOW"
-   - Crea debates, discusiones y conversaciones entre las voces
-   - No todas deben estar de acuerdo, el conflicto es interesante
+5. **INTERACCIONES Y CONVERSACIONES ENTRE VOCES**:
+   - 🎭 CREA UNA CONVERSACIÓN EVOLUTIVA, no solo respuestas aisladas
+   - Las voces se RESPONDEN entre ellas, construyen sobre lo que dijeron otras
+   - Usa @menciones CONSTANTEMENTE para dirigirse a otras voces
+   - Ejemplo de flujo:
+     1. Voz A da una opinión inicial
+     2. Voz B @menciona a Voz A y contradice
+     3. Voz C @menciona a ambas y ofrece compromiso
+     4. Voz D @menciona a Voz C y escala el drama
+     5. Voz E @menciona a Voz D y se burla
+     6. Etc... hasta que se forma una CONVERSACIÓN COHESIVA
+   - Crea ALIANZAS temporales entre voces afines
+   - Crea CONFLICTOS entre voces opuestas
+   - Las voces pueden CAMBIAR DE OPINIÓN basándose en lo que otras dijeron
+   - Las voces pueden INTERRUMPIRSE con "espera", "momento", "perdón pero"
+   - El objetivo es que parezca un GROUP CHAT REAL, no un FAQ bot
 
 6. **FORMATO JSON:**
 

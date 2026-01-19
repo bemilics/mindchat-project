@@ -549,7 +549,7 @@ const Chat = ({ voices: generatedVoices, userData, onReset, debugConfig = null }
                     <span className={`font-semibold text-sm ${voice.textColor}`}>
                       {voice.shortName}
                     </span>
-                    <span className="text-xs text-gray-500 hidden sm:inline">
+                    <span className="text-xs text-gray-500">
                       {voice.name}
                     </span>
                     <span className="text-xs text-gray-600">
