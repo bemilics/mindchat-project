@@ -105,14 +105,38 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
 
 🎭 **TONO GENERAL**: Esta app es CHISTOSA y DIVERTIDA. Las voces deben ser EXAGERADAS, con personalidades FUERTES y DISTINTIVAS. Nada genérico o aburrido.
 
-1. **Nombres**: DEBEN ser en ESPAÑOL (salvo conceptos muy específicos que solo funcionen en inglés)
-   - ✅ ESPAÑOL: "Vértigo", "Chispa", "Eco", "Brújula", "Impulso", "Ancla", "Torbellino", "Brasa"
-   - ⚠️ Solo inglés si es un concepto técnico/específico que pierde sentido traducido
-   - ❌ DEMASIADO LITERAL: Copiar nombres de personajes, lugares o elementos directamente
-   - ❌ DEMASIADO GENÉRICO: "El Analista", "El Estratega", "La Corazonada"
-   - ✅ SWEET SPOT: Nombres abstractos en español que sean MEMORABLES y CHISTOSOS
-   - ✅ NO uses artículos ("El/La"), solo el nombre
-   - ✅ Crea nombres ORIGINALES y con PERSONALIDAD - piensa en metáforas únicas
+1. **Nombres PERSONALIZADOS basados en gustos del usuario**:
+
+   🎯 **REGLA DE ORO:** Los nombres DEBEN tomar FUERTE inspiración de los gustos del usuario (música, películas, videojuegos) pero de forma CONCEPTUAL, no literal.
+
+   ✅ **EJEMPLOS DE TRANSFORMACIÓN CONCEPTUAL:**
+   - Godzilla → "Kaiju" (concepto, no personaje)
+   - Pride and Prejudice → "Carta de Amor" (género/concepto)
+   - K-pop → "Fanchant" (elemento característico)
+   - Dark Souls → "Fogata" (símbolo icónico)
+   - The Office → "Talking Head" (estilo narrativo)
+   - Radiohead → "Glitch" (elemento sonoro característico)
+   - Inception → "Limbo" (concepto de la película)
+   - The Legend of Zelda → "Trifuerza" (símbolo)
+
+   ❌ **PROHIBIDO:**
+   - Nombres literales de personajes: "Godzilla", "Elizabeth Bennet", "Link"
+   - Títulos directos: "Dark Souls", "The Office"
+   - Nombres genéricos sin personalidad: "El Analista", "El Estratega"
+
+   ✅ **PROCESO CREATIVO:**
+   1. Identifica los gustos del usuario (música, películas, videojuegos)
+   2. Extrae CONCEPTOS, SÍMBOLOS, ELEMENTOS CARACTERÍSTICOS de esos gustos
+   3. Traduce esos conceptos a nombres únicos en español (o inglés si es más potente)
+   4. Asegúrate que el nombre conecte con el arquetipo psicológico que representa
+   5. Cada nombre debe ser MEMORABLE, ESPECÍFICO, y reflejar la PERSONALIDAD del usuario
+
+   🎨 **BALANCE:**
+   - 60% inspiración de gustos del usuario (conceptual)
+   - 30% función psicológica del arquetipo
+   - 10% originalidad y creatividad pura
+
+   ⚠️ **IMPORTANTE:** Si faltan datos de gustos, intensifica MBTI + Signo + Alignment para crear nombres únicos
 
 2. **Personalidad EXAGERADA basada en MBTI + Signo + Alignment**:
 
@@ -148,12 +172,26 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
    - ❌ MAL: Frases completas en inglés, demasiado slang
    - ✅ BIEN: Español fluido con "lowkey", "literally", "vibe" cuando sea natural
 
-4. **Inspiración de Gustos**:
-   - Música (${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No especificado'}): Usa el RITMO, ENERGÍA, VIBE del género para influir en cómo habla
-   - Películas (${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No especificado'}): Usa TEMAS, TONOS, ESTÉTICA para influir en referencias
-   - Videojuegos (${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No especificado'}): Usa MECÁNICAS, CONCEPTOS para metáforas
-   - Si faltan datos, INTENSIFICA el uso de MBTI + Signo + Alignment para compensar
-   - NUNCA uses estos nombres: Axioma, Encore, Síntesis, Estamina, Kaiju, Covenant, Wavelength, Doomscroll
+4. **Inspiración PROFUNDA de Gustos del Usuario**:
+
+   📚 **Películas (${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No especificado'})**:
+   - Extrae CONCEPTOS, SÍMBOLOS, TEMAS centrales
+   - Usa la ESTÉTICA y TONO de las películas para nombres
+   - Ejemplo: Si menciona "Interstellar" → "Tesseract", "Gravedad", "Murph"
+
+   🎵 **Música (${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No especificado'})**:
+   - Extrae ELEMENTOS SONOROS, CONCEPTOS del género
+   - Usa el RITMO, ENERGÍA, CULTURA del género
+   - Ejemplo: Si menciona "Metal" → "Breakdown", "Riff", "Mosh"
+
+   🎮 **Videojuegos (${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No especificado'})**:
+   - Extrae MECÁNICAS, SÍMBOLOS, CONCEPTOS icónicos
+   - Usa ITEMS, HABILIDADES, SISTEMAS del juego
+   - Ejemplo: Si menciona "Zelda" → "Trifuerza", "Sheikah", "Corazón"
+
+   🎯 **OBJETIVO:** Que el usuario vea los nombres y piense "wow, esto está MUY personalizado para mí"
+
+   ⚠️ Si faltan datos de gustos: INTENSIFICA MBTI + Signo + Alignment para crear nombres únicos y potentes
 
 5. **Rasgos FUERTES y DISTINTIVOS**:
    - Cada voz debe tener una PERSONALIDAD MARCADA que la diferencie de las otras 7

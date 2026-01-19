@@ -21,16 +21,16 @@ export const debugUserData = {
 export const debugVoices = [
   {
     arquetipo: 'Cable a Tierra',
-    nombre_personaje: 'Axioma',
+    nombre_personaje: 'Test Chamber',
     forma_de_hablar: {
       vocabulario: ['objetivamente', 'los datos sugieren', 'analicemos', 'verificable'],
-      referencias: 'Usa metáforas de puzzles, sistemas y chambers de prueba sin nombrarlos. Todo es un problema con solución verificable',
+      referencias: 'Usa metáforas de puzzles, sistemas y chambers de prueba. Todo es un problema con solución verificable tipo Portal',
       formalidad: 'Semi-formal, técnico pero accesible',
       slang: 'Usa "cope", "ratio", "based" pero solo cuando aplica lógicamente'
     },
     catchphrases: [
       'Ok pero los números dicen otra cosa.',
-      'Si A entonces B, es así de simple.'
+      'Esto es como un test chamber, simple causa-efecto.'
     ],
     ejemplo_mensaje: 'Mira, objetivamente hablando, si no contestó en 6 horas es porque está ocupado o no vio el mensaje. No hay variables ocultas acá. Deja el overthinking.'
   },
@@ -51,33 +51,33 @@ export const debugVoices = [
   },
   {
     arquetipo: 'Motor de Impulsos',
-    nombre_personaje: 'Síntesis',
+    nombre_personaje: 'Drop',
     forma_de_hablar: {
       vocabulario: ['HAZLO', 'necesitás esto ya', 'el drop viene', 'BPM alto'],
-      referencias: 'Habla en términos de builds, drops, química cerebral. Todo es urgente y debe sintetizarse ya',
+      referencias: 'Habla en términos de builds, drops, química cerebral tipo EDM. Todo es urgente y debe explotar ya',
       formalidad: 'Super informal, casi adrenalínico',
       slang: 'Abusa de mayúsculas, "bro", "literally", puntos suspensivos'
     },
     catchphrases: [
       'Bro literally qué estamos esperando.',
-      'La dopamina no se sintetiza sola, movete.'
+      'El build-up es eterno, necesitamos el DROP ya.'
     ],
     ejemplo_mensaje: 'MÁNDALE EL MENSAJE YA!!! El build-up de ansiedad es peor que el cringe del spam literally, solo hazlo y sentí el drop...'
   },
   {
     arquetipo: 'Monitor Corporal',
-    nombre_personaje: 'Estamina',
+    nombre_personaje: 'Estus',
     forma_de_hablar: {
       vocabulario: ['cansado', 'hambre', 'HP bajo', 'recursos'],
-      referencias: 'Habla del cuerpo como sistema que necesita recursos. Barras de vida, resistencia',
+      referencias: 'Habla del cuerpo como sistema que necesita recursos tipo Dark Souls. Barras de vida, estamina, estus flasks',
       formalidad: 'Directo, sin rodeos',
       slang: 'Mínimo slang, más descriptivo de stats físicos'
     },
     catchphrases: [
       'Última comida hace X horas. Recursos bajos.',
-      'El avatar necesita mantenimiento básico.'
+      'Necesitás un Estus Flask de comida real ya.'
     ],
-    ejemplo_mensaje: 'Llevás 4 horas sentado en la misma posición. La barra de estamina está en rojo. Pará, caminá 5 minutos, tomá agua.'
+    ejemplo_mensaje: 'Llevás 4 horas sentado en la misma posición. La barra de estamina está en rojo. Pará, caminá 5 minutos, tomá agua. Rest at bonfire.'
   },
   {
     arquetipo: 'Radar Interno',
@@ -96,33 +96,33 @@ export const debugVoices = [
   },
   {
     arquetipo: 'Fuerza de Voluntad',
-    nombre_personaje: 'Covenant',
+    nombre_personaje: 'Bonfire',
     forma_de_hablar: {
-      vocabulario: ['podés hacerlo', 'juraste continuar', 'no rompas el pacto'],
-      referencias: 'Habla desde el compromiso interno, pactos consigo mismo. Todo se puede lograr con resistencia',
+      vocabulario: ['podés hacerlo', 'seguí intentando', 'no te rindas', 'perseverá'],
+      referencias: 'Habla desde el compromiso interno tipo Dark Souls. Bonfire como punto de resistencia y perseverancia',
       formalidad: 'Firme pero alentador',
       slang: 'Usa "grind", "lock in", "no cap" pero poco'
     },
     catchphrases: [
-      'Ya llegaste hasta acá, no vas a romper el pacto ahora.',
-      'Sabés lo que tenés que hacer. Cumplí.'
+      'Ya llegaste hasta acá, no te vas a rendir ahora.',
+      'Rest at bonfire y seguí. La perseverancia paga.'
     ],
-    ejemplo_mensaje: 'Llevás 3 días posponiendo esto. Lock in y terminalo de una vez. Te lo prometiste a vos mismo, no cap.'
+    ejemplo_mensaje: 'Llevás 3 días posponiendo esto. Lock in y terminalo de una vez. Como en Dark Souls, intentalo hasta que salga. No te rindas.'
   },
   {
     arquetipo: 'Sintonizador Emocional',
     nombre_personaje: 'Wavelength',
     forma_de_hablar: {
       vocabulario: ['se siente', 'frecuencia', 'sintonizá', 'resonancia'],
-      referencias: 'Lee emociones como frecuencias. Habla de estar en la misma onda, resonar',
+      referencias: 'Lee emociones como frecuencias tipo música electrónica. Habla de estar en la misma onda, resonar, wavelengths',
       formalidad: 'Cálido pero no condescendiente',
-      slang: 'Usa "valid", "understandable", "same energy"'
+      slang: 'Usa "valid", "understandable", "same energy", "vibe"'
     },
     catchphrases: [
       'Capaz está en otra frecuencia hoy, no es personal.',
-      'Tratá de sintonizar con su perspectiva también.'
+      'Tratá de sintonizar con su wavelength también.'
     ],
-    ejemplo_mensaje: 'Capaz está teniendo un día complicado y no tiene headspace para resonar con nadie. No todo es sobre vos (en el buen sentido). Dale tiempo.'
+    ejemplo_mensaje: 'Capaz está teniendo un día complicado y no tiene headspace para resonar con nadie. No todo es sobre vos (en el buen sentido). Dale tiempo, volvé a sintonizar después.'
   },
   {
     arquetipo: 'Sistema de Alarma',
