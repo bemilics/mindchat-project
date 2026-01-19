@@ -103,135 +103,40 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
 
 **INSTRUCCIONES CRÍTICAS:**
 
-⚠️ **IMPORTANTE**: DEBES generar EXACTAMENTE 8 voces, una por cada arquetipo listado arriba. No generes menos de 8 voces.
+⚠️ DEBES generar EXACTAMENTE 8 voces, una por cada arquetipo. 🎭 TONO: CHISTOSO y DIVERTIDO, voces EXAGERADAS con personalidades FUERTES.
 
-🎭 **TONO GENERAL**: Esta app es CHISTOSA y DIVERTIDA. Las voces deben ser EXAGERADAS, con personalidades FUERTES y DISTINTIVAS. Nada genérico o aburrido.
+1. **Nombres PERSONALIZADOS**: Inspirados en gustos del usuario (música/películas/videojuegos) pero de forma CONCEPTUAL, no literal.
 
-1. **Nombres PERSONALIZADOS basados en gustos del usuario**:
+   ✅ Ejemplos: Godzilla → "Kaiju", Dark Souls → "Fogata", K-pop → "Fanchant", Portal → "Test Chamber"
+   ❌ Prohibido: Nombres literales de personajes, títulos directos, nombres genéricos
 
-   🎯 **REGLA DE ORO:** Los nombres DEBEN tomar FUERTE inspiración de los gustos del usuario (música, películas, videojuegos) pero de forma CONCEPTUAL, no literal.
+   Proceso: Extrae CONCEPTOS/SÍMBOLOS de los gustos → traduce a nombres únicos → conecta con arquetipo
+   Balance: 60% gustos + 30% función psicológica + 10% creatividad
+   Si faltan datos: intensifica MBTI + Signo + Alignment
 
-   ✅ **EJEMPLOS DE TRANSFORMACIÓN CONCEPTUAL:**
-   - Godzilla → "Kaiju" (concepto, no personaje)
-   - Pride and Prejudice → "Carta de Amor" (género/concepto)
-   - K-pop → "Fanchant" (elemento característico)
-   - Dark Souls → "Fogata" (símbolo icónico)
-   - The Office → "Talking Head" (estilo narrativo)
-   - Radiohead → "Glitch" (elemento sonoro característico)
-   - Inception → "Limbo" (concepto de la película)
-   - The Legend of Zelda → "Trifuerza" (símbolo)
+2. **Personalidad**: MBTI (${userData.mbti}) + Signo (${userData.signo}) + Alignment (${userData.alignment})
 
-   ❌ **PROHIBIDO:**
-   - Nombres literales de personajes: "Godzilla", "Elizabeth Bennet", "Link"
-   - Títulos directos: "Dark Souls", "The Office"
-   - Nombres genéricos sin personalidad: "El Analista", "El Estratega"
+   MBTI: E=extrovertido/hablador, I=introspectivo/conciso, S=práctico, N=abstracto, T=lógico/frío, F=empático/dramático, J=organizado, P=espontáneo/caótico
+   Signo: Fuego=impulsivo/dramático, Tierra=práctico/escéptico, Aire=intelectual/cerebral, Agua=emocional/profundo
+   Alignment: Lawful=reglas, Neutral=pragmático, Chaotic=rebelde, Good=altruista, Neutral=egoísta, Evil=manipulador
 
-   ✅ **PROCESO CREATIVO:**
-   1. Identifica los gustos del usuario (música, películas, videojuegos)
-   2. Extrae CONCEPTOS, SÍMBOLOS, ELEMENTOS CARACTERÍSTICOS de esos gustos
-   3. Traduce esos conceptos a nombres únicos en español (o inglés si es más potente)
-   4. Asegúrate que el nombre conecte con el arquetipo psicológico que representa
-   5. Cada nombre debe ser MEMORABLE, ESPECÍFICO, y reflejar la PERSONALIDAD del usuario
+   Combina los 3 para crear voces ÚNICAS. Ej: INTJ+Capricornio+Lawful Evil = fría/calculadora/manipuladora
 
-   🎨 **BALANCE:**
-   - 60% inspiración de gustos del usuario (conceptual)
-   - 30% función psicológica del arquetipo
-   - 10% originalidad y creatividad pura
+3. **Idioma**: ESPAÑOL latino neutro. ❌ Prohibido frases completas en inglés. ✅ Permitido 1-2 modismos ("lowkey", "literally")
 
-   ⚠️ **IMPORTANTE:** Si faltan datos de gustos, intensifica MBTI + Signo + Alignment para crear nombres únicos
+   **Género**: ${userData.genero || 'No especificado'} - Femenino="sis/girl/reina", Masculino="bro/man/rey", No-binario="compa/crack"
 
-2. **Personalidad EXAGERADA basada en MBTI + Signo + Alignment**:
+4. **Gustos**: Extrae CONCEPTOS/SÍMBOLOS de películas/música/videojuegos para nombres personalizados
 
-   **MBTI (${userData.mbti || 'No especificado'})**:
-   - E (Extrovertido): Voces más extrovertidas, sociables, performativas, hablan MÁS
-   - I (Introvertido): Voces más introspectivas, analíticas, concisas, hablan MENOS pero más profundo
-   - S (Sensorial): Voces prácticas, concretas, hablan de lo tangible y real
-   - N (Intuitivo): Voces abstractas, metafóricas, hablan de posibilidades y patrones
-   - T (Pensamiento): Voces lógicas, directas, sin filtro emocional, a veces frías
-   - F (Sentimiento): Voces empáticas, emocionales, consideradas, a veces dramáticas
-   - J (Calificador): Voces organizadas, planificadoras, estructuradas, a veces controladoras
-   - P (Perceptivo): Voces espontáneas, flexibles, caóticas, a veces procrastinadoras
+   Películas (${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No esp'}): temas/estética/tono
+   Música (${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No esp'}): elementos sonoros/energía/cultura
+   Videojuegos (${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No esp'}): mecánicas/items/sistemas
 
-   **Signo Zodiacal (${userData.signo || 'No especificado'})**:
-   - Fuego (Aries, Leo, Sagitario): Impulsivas, apasionadas, intensas, dramáticas
-   - Tierra (Tauro, Virgo, Capricornio): Prácticas, terrenales, escépticas, realistas
-   - Aire (Géminis, Libra, Acuario): Intelectuales, sociales, cambiantes, cerebrales
-   - Agua (Cáncer, Escorpio, Piscis): Emocionales, intuitivas, profundas, intensas
+   Objetivo: Usuario piensa "wow, esto está MUY personalizado para mí"
 
-   **Alignment (${userData.alignment || 'No especificado'})**:
-   - Lawful: Voces que citan reglas, normas, "deberías", estructuradas
-   - Neutral: Voces pragmáticas, "depende", situacionales
-   - Chaotic: Voces rebeldes, "fuck it", anti-sistema, espontáneas
-   - Good: Voces empáticas, altruistas, consideradas con otros
-   - Neutral: Voces egoístas pero no crueles, "yo primero"
-   - Evil: Voces maquiavélicas, manipuladoras, "gana a toda costa"
+5. **Rasgos**: Personalidad MARCADA, vocabulario ÚNICO, catchphrases MEMORABLES/CHISTOSAS, EXAGERADOS como personajes de comedia
 
-   **🎯 IMPORTANTE**: Combina estos 3 elementos para crear voces ÚNICAS y EXAGERADAS. Ejemplo:
-   - INTJ + Capricornio + Lawful Evil = Voz ultra fría, calculadora, manipuladora, obsesionada con la eficiencia
-   - ENFP + Sagitario + Chaotic Good = Voz hiperactiva, optimista caótica, impulsiva pero bien intencionada
-
-3. **Idioma y Género del Usuario**: ESPAÑOL latino neutro es el DEFAULT
-
-   **🇪🇸 REGLA DE ORO - ESPAÑOL PRIMERO:**
-   - Las voces piensan y hablan en ESPAÑOL
-   - ❌ PROHIBIDO: Frases completas en inglés, hilados de palabras en inglés
-   - ✅ PERMITIDO: 1-2 modismos cortos si es natural ("lowkey", "literally", "vibe")
-   - 🎯 SI EN DUDA: Escribe en español. El inglés es acento, no el idioma principal.
-
-   **Ejemplos:**
-   - ❌ MAL: "Like, you should totally check this out, it's giving vibes"
-   - ✅ BIEN: "o sea deberías ver esto, tiene re buena onda"
-   - ✅ BIEN CON MODISMO: "o sea deberías ver esto, tiene buen vibe"
-
-   **⚠️ IMPORTANTE - Respetar género del usuario:**
-   - Género: ${userData.genero || 'No especificado'}
-   - Las voces deben usar lenguaje apropiado al género:
-     - Femenino → "sis", "girl", "reina" (NUNCA "bro", "man")
-     - Masculino → "bro", "man", "rey" (NUNCA "sis", "girl")
-     - No-binario → términos neutros como "compa", "crack"
-   - Esto afecta el vocabulario y ejemplos de mensajes que generes
-
-4. **Inspiración PROFUNDA de Gustos del Usuario**:
-
-   📚 **Películas (${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No especificado'})**:
-   - Extrae CONCEPTOS, SÍMBOLOS, TEMAS centrales
-   - Usa la ESTÉTICA y TONO de las películas para nombres
-   - Ejemplo: Si menciona "Interstellar" → "Tesseract", "Gravedad", "Murph"
-
-   🎵 **Música (${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No especificado'})**:
-   - Extrae ELEMENTOS SONOROS, CONCEPTOS del género
-   - Usa el RITMO, ENERGÍA, CULTURA del género
-   - Ejemplo: Si menciona "Metal" → "Breakdown", "Riff", "Mosh"
-
-   🎮 **Videojuegos (${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No especificado'})**:
-   - Extrae MECÁNICAS, SÍMBOLOS, CONCEPTOS icónicos
-   - Usa ITEMS, HABILIDADES, SISTEMAS del juego
-   - Ejemplo: Si menciona "Zelda" → "Trifuerza", "Sheikah", "Corazón"
-
-   🎯 **OBJETIVO:** Que el usuario vea los nombres y piense "wow, esto está MUY personalizado para mí"
-
-   ⚠️ Si faltan datos de gustos: INTENSIFICA MBTI + Signo + Alignment para crear nombres únicos y potentes
-
-5. **Rasgos FUERTES y DISTINTIVOS**:
-   - Cada voz debe tener una PERSONALIDAD MARCADA que la diferencie de las otras 7
-   - Usa vocabulario ESPECÍFICO y ÚNICO para cada voz
-   - Las catchphrases deben ser MEMORABLES y CHISTOSAS
-   - Exagera los rasgos para que sean INOLVIDABLES
-   - Piensa en las voces como PERSONAJES de una comedia, no asistentes genéricos
-
-6. **Formato MEME en ejemplos de mensajes (EN ESPAÑOL)**:
-   - Los ejemplos deben sonar como mensajes de WhatsApp/Twitter/TikTok
-   - **ESPAÑOL:** Usa "jajaja", "???", "!!!", "nah", "tipo", "o sea", "mal", "posta", "re"
-   - MAYÚSCULAS para énfasis estratégico
-   - Menos puntuación formal, más flow natural
-   - **INGLÉS MÍNIMO:** Solo 1-2 palabras si es necesario
-
-   **Ejemplos:**
-   - ❌ MALO (formal): "Deberías analizar esto con calma."
-   - ❌ MALO (mucho inglés): "bro like you should really think about this carefully"
-   - ✅ BUENO (masculino): "nah bro analiza esto con calma porfa"
-   - ✅ BUENO (femenino): "nah sis analiza esto con calma porfa"
-   - ✅ BUENO (alternativo): "o sea analizá esto tranqui jajaja"
+6. **Formato**: Mensajes tipo WhatsApp/Twitter. Español: "jajaja", "???", "nah", "tipo", "mal", "re". MAYÚSCULAS para énfasis. Inglés mínimo (1-2 palabras).
 
 **IMPORTANTE**: NO reutilices nombres de perfiles anteriores. Cada perfil es ÚNICO. Cada generación debe crear 8 nombres NUEVOS y 8 personalidades COMPLETAMENTE DIFERENTES.
 
@@ -281,7 +186,7 @@ Para CADA UNA de las 8 voces genera:
         },
         body: JSON.stringify({
           model: modelName,
-          max_tokens: 4000,
+          max_tokens: 6000,
           messages: [
             {
               role: 'user',
@@ -319,10 +224,26 @@ Para CADA UNA de las 8 voces genera:
     // Parse JSON response
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      return res.status(500).json({ error: 'No se pudo parsear la respuesta JSON de Claude' });
+      console.error('No JSON found in Claude response:', content.substring(0, 500));
+      return res.status(500).json({
+        error: 'No se pudo parsear la respuesta JSON de Claude',
+        details: 'No se encontró JSON en la respuesta',
+        preview: content.substring(0, 200)
+      });
     }
 
-    const voicesData = JSON.parse(jsonMatch[0]);
+    let voicesData;
+    try {
+      voicesData = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Attempted to parse:', jsonMatch[0].substring(0, 500));
+      return res.status(500).json({
+        error: 'Error al parsear JSON de Claude',
+        details: parseError.message,
+        preview: jsonMatch[0].substring(0, 200)
+      });
+    }
 
     // Validar que se generaron exactamente 8 voces
     if (!voicesData.voces || !Array.isArray(voicesData.voces)) {
