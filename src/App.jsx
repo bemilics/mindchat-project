@@ -39,6 +39,7 @@ function App() {
   const [isGeneratingVoices, setIsGeneratingVoices] = useState(false)
   const [generationError, setGenerationError] = useState(null)
   const [sessionId, setSessionId] = useState(getSessionId())
+  const [retryAttempt, setRetryAttempt] = useState(0)
 
   const [debugConfig, setDebugConfig] = useState(null) // null | { profileType, profileModel, chatModel }
 
@@ -64,11 +65,11 @@ function App() {
     }
   }, []);
 
-  const handleOnboardingComplete = async (data, config = null) => {
+  const handleOnboardingComplete = async (data, config = null, retryCount = 0) => {
     setUserData(data)
     setDebugConfig(config)
 
-    console.log('[MindChat] Onboarding complete:', { data, config });
+    console.log('[MindChat] Onboarding complete:', { data, config, retryCount });
 
     // Limpiar voces anteriores antes de guardar nuevos datos
     localStorage.removeItem('mindchat_voices');
@@ -100,9 +101,9 @@ function App() {
       // Determinar qué modelo usar para generar el perfil
       const modelToUse = config?.profileModel || 'haiku' // Default: haiku
 
-      // Crear AbortController para timeout
+      // Crear AbortController para timeout (más tiempo para mobile)
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 segundos timeout
+      const timeoutId = setTimeout(() => controller.abort(), 75000) // 75 segundos timeout
 
       try {
         var response = await fetch('/api/generate-voices', {
@@ -137,13 +138,33 @@ function App() {
       if (responseData.success && responseData.voces) {
         setGeneratedVoices(responseData.voces)
         saveToLocalStorage('mindchat_voices', responseData.voces);
+        setRetryAttempt(0) // Reset retry counter on success
         setCurrentView('chat')
       } else {
         throw new Error('Respuesta inválida del servidor')
       }
     } catch (err) {
       console.error('[MindChat] Error generating voices:', err)
-      setGenerationError(err.message)
+
+      // Retry automático en caso de error de red (común en mobile)
+      const isNetworkError = err.message.includes('fetch') || err.message.includes('network') || err.message.includes('Failed to fetch')
+      const maxRetries = 2
+
+      if (isNetworkError && retryCount < maxRetries) {
+        console.log(`[MindChat] Network error detected, retrying... (attempt ${retryCount + 1}/${maxRetries})`)
+        setRetryAttempt(retryCount + 1)
+        // Esperar 2 segundos antes de reintentar
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        // Reintentar recursivamente
+        return handleOnboardingComplete(data, config, retryCount + 1)
+      }
+
+      // Si llegamos acá, ya no hay más retries o no es error de red
+      const errorMessage = retryCount > 0
+        ? `${err.message} (intentos: ${retryCount + 1})`
+        : err.message
+
+      setGenerationError(errorMessage)
     } finally {
       setIsGeneratingVoices(false)
     }
@@ -163,6 +184,7 @@ function App() {
     setIsGeneratingVoices(false)
     setGenerationError(null)
     setDebugConfig(null)
+    setRetryAttempt(0)
   }
 
   return (
@@ -187,7 +209,13 @@ function App() {
               {debugConfig?.profileModel === 'sonnet'
                 ? 'Esto puede tomar 20-40 segundos con Sonnet'
                 : 'Esto puede tomar 15-30 segundos'}
+              {retryAttempt > 0 && ' (puede tardar más en mobile)'}
             </p>
+            {retryAttempt > 0 && (
+              <p className="text-yellow-400 text-sm mt-2">
+                Reintentando... (intento {retryAttempt + 1}/3)
+              </p>
+            )}
             {debugConfig && (
               <p className="text-xs text-gray-500 mt-2">
                 Modelo: {debugConfig.profileModel === 'sonnet' ? '🔵 Sonnet' : '🟢 Haiku'}
