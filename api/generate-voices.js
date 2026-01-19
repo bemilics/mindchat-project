@@ -89,6 +89,8 @@ export default async function handler(req, res) {
 - MBTI: ${userData.mbti || 'No especificado'}
 - Signo: ${userData.signo || 'No especificado'}
 - Generación: ${userData.generacion || 'No especificado'}
+- Género: ${userData.genero || 'No especificado'}
+- Orientación Sexual: ${userData.orientacionSexual || 'No especificado'}
 - Música: ${userData.musica?.length > 0 ? userData.musica.join(', ') : 'No especificado'}
 - Películas: ${userData.peliculas?.filter(p => p.trim()).join(', ') || 'No especificado'}
 - Videojuegos: ${userData.videojuegos?.filter(v => v.trim()).join(', ') || 'No especificado'}
@@ -168,9 +170,17 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
    - INTJ + Capricornio + Lawful Evil = Voz ultra fría, calculadora, manipuladora, obsesionada con la eficiencia
    - ENFP + Sagitario + Chaotic Good = Voz hiperactiva, optimista caótica, impulsiva pero bien intencionada
 
-3. **Idioma**: ESPAÑOL latino neutro con POCOS modismos en inglés
+3. **Idioma y Género del Usuario**: ESPAÑOL latino neutro con POCOS modismos en inglés
    - ❌ MAL: Frases completas en inglés, demasiado slang
    - ✅ BIEN: Español fluido con "lowkey", "literally", "vibe" cuando sea natural
+
+   **⚠️ IMPORTANTE - Respetar género del usuario:**
+   - Género: ${userData.genero || 'No especificado'}
+   - Las voces deben usar lenguaje apropiado al género:
+     - Femenino → "sis", "girl", "reina" (NUNCA "bro", "man")
+     - Masculino → "bro", "man", "rey" (NUNCA "sis", "girl")
+     - No-binario → términos neutros como "compa", "crack"
+   - Esto afecta el vocabulario y ejemplos de mensajes que generes
 
 4. **Inspiración PROFUNDA de Gustos del Usuario**:
 
@@ -199,6 +209,15 @@ ${arquetipos.map((arq, i) => `${i + 1}. **${arq.nombre}**: ${arq.descripcion}`).
    - Las catchphrases deben ser MEMORABLES y CHISTOSAS
    - Exagera los rasgos para que sean INOLVIDABLES
    - Piensa en las voces como PERSONAJES de una comedia, no asistentes genéricos
+
+6. **Formato MEME en ejemplos de mensajes**:
+   - Los ejemplos deben sonar como mensajes de WhatsApp/Twitter/TikTok
+   - Usa "jajaja", "???", "!!!", "nah", "tipo", "o sea", "mal", "posta"
+   - MAYÚSCULAS para énfasis estratégico
+   - Menos puntuación formal, más flow natural
+   - Ejemplo MALO: "Deberías analizar esto con calma."
+   - Ejemplo BUENO (masculino): "nah bro analiza esto con calma porfa"
+   - Ejemplo BUENO (femenino): "nah sis analiza esto con calma porfa"
 
 **IMPORTANTE**: NO reutilices nombres de perfiles anteriores. Cada perfil es ÚNICO. Cada generación debe crear 8 nombres NUEVOS y 8 personalidades COMPLETAMENTE DIFERENTES.
 
