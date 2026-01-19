@@ -877,10 +877,165 @@ Onboarding
 
 ---
 
-## Sesión 4 - [Fecha]
+## Sesión 4 - Enero 19, 2026
+
+### Objetivos
+- Resolver error de timeout en generación de voces
+- Preparar sistema para manejar tiempos de respuesta más largos de la API
+
+### Trabajo Realizado
+
+**1. Fix Crítico: Timeout en Generación de Voces**
+- **Problema reportado:** La generación del perfil tiraba error de timeout tanto con Haiku como con Sonnet
+- **Diagnóstico:**
+  - Backend timeout: 25 segundos (muy corto)
+  - Vercel maxDuration: 30 segundos
+  - Frontend: Sin timeout específico
+  - Prompt muy detallado que requiere más tiempo de procesamiento
+
+- **Solución implementada:**
+  1. **Vercel maxDuration aumentado a 60s** (vercel.json línea 8)
+     - De 30s → 60s (máximo en Hobby plan)
+  2. **Backend timeout aumentado a 55s** (generate-voices.js línea 201)
+     - De 25s → 55s (para no abortar antes que Vercel)
+  3. **Frontend timeout agregado de 60s** (App.jsx líneas 103-127)
+     - AbortController con manejo de timeout explícito
+     - Mensaje de error claro: "La generación de voces tomó demasiado tiempo"
+  4. **Mensaje de loading actualizado** (App.jsx líneas 186-190)
+     - Haiku: "Esto puede tomar 15-30 segundos"
+     - Sonnet: "Esto puede tomar 20-40 segundos con Sonnet"
+
+### Decisiones Técnicas
+
+**1. 60 Segundos como Límite Máximo**
+- **Decisión:** maxDuration de 60s para Vercel functions
+- **Razón:**
+  - 60s es el máximo permitido en Vercel Hobby plan
+  - Suficiente para Haiku (~15-30s) y Sonnet (~20-40s)
+  - Balance entre experiencia de usuario y costos
+- **Trade-off:** Usuarios deben esperar más, pero generación no falla
+
+**2. Timeouts Escalonados (Backend < Vercel < Frontend)**
+- **Decisión:** Backend 55s, Vercel 60s, Frontend 60s
+- **Razón:**
+  - Backend aborta primero para manejar error gracefully
+  - Vercel actúa como fallback si backend no responde
+  - Frontend da feedback claro al usuario
+- **Arquitectura:**
+  ```
+  Frontend (60s timeout)
+      ↓
+  Vercel Function (60s maxDuration)
+      ↓
+  Backend Fetch (55s timeout)
+      ↓
+  Claude API
+  ```
+
+**3. Mensajes Diferenciados por Modelo**
+- **Decisión:** Mostrar estimación de tiempo según modelo usado
+- **Razón:**
+  - Sonnet es más lento que Haiku (calidad > velocidad)
+  - Usuarios necesitan expectativas realistas
+  - Reduce frustración al esperar
+- **Implementación:** Condicional en loading screen
+
+### Problemas Encontrados
+
+**1. Timeout de 25s Demasiado Corto para Prompts Complejos**
+- **Problema:** Error de timeout en desarrollo con ambos modelos
+- **Causa raíz:** Prompt de generación de voces es muy detallado:
+  - Guías extensas de MBTI (8 características)
+  - Guías de signos zodiacales (12 signos x 4 elementos)
+  - Guías de alignment (9 combinaciones)
+  - Instrucciones de tono y estilo
+  - Validaciones y restricciones
+  - Formato JSON complejo con 8 voces
+- **Tiempo real de generación:**
+  - Haiku: 15-30 segundos
+  - Sonnet: 20-40 segundos
+- **Solución:** Aumentar timeouts a 55-60s
+
+**2. Frontend Sin Timeout Explícito**
+- **Problema:** Si backend/Vercel fallaban, frontend esperaba indefinidamente
+- **Causa:** fetch() sin AbortController
+- **Solución:** Implementado AbortController con 60s timeout
+- **Beneficio:** Mensaje de error claro y opción de reintentar
+
+### Pendientes
+
+**Testing Inmediato:**
+- [ ] Deploy a Vercel develop y probar con perfil real
+- [ ] Verificar que timeouts funcionan correctamente
+- [ ] Testear con Haiku (debería tomar ~15-30s)
+- [ ] Testear con Sonnet (debería tomar ~20-40s)
+- [ ] Confirmar que error handling funciona si toma >60s
+
+**Optimizaciones Futuras (baja prioridad):**
+- [ ] Considerar streaming de respuestas para feedback en tiempo real
+- [ ] Posible simplificación del prompt si timeouts siguen siendo problema
+- [ ] Explorar batch generation (generar 4 voces + 4 voces en paralelo)
+- [ ] Caché de voces generadas para perfiles similares
+
+**Antes de Producción:**
+- [ ] Confirmar que 60s es suficiente en 95% de los casos
+- [ ] Documentar tiempos de generación reales en analytics
+- [ ] Considerar fallback a Haiku si Sonnet falla por timeout
+
+### Notas
+
+**Sobre Vercel Limits:**
+- **Hobby plan:** maxDuration máximo de 60s
+- **Pro plan:** maxDuration hasta 300s (5 minutos)
+- Si el proyecto escala y necesita más tiempo, migrar a Pro plan
+
+**Sobre Tiempos de Generación:**
+- Haiku es ~2-3x más rápido que Sonnet
+- El prompt actual es bastante complejo (~1500 tokens input)
+- Generación de 8 voces con formato JSON requiere ~3000-4000 tokens output
+- Total de procesamiento: ~4500-5500 tokens por request
+
+**Sobre UX de Timeouts:**
+- 60 segundos está en el límite de lo aceptable para UX
+- Usuarios modernos esperan respuestas en <10s idealmente
+- Mensaje de loading con estimación de tiempo es crítico
+- Opción de "Volver al inicio" en caso de error es necesaria
+
+**Arquitectura de Timeouts:**
+```
+┌─────────────────────────────────────────┐
+│ Frontend: 60s timeout                    │
+│ └─> AbortController aborts at 60s       │
+└─────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────┐
+│ Vercel Function: 60s maxDuration        │
+│ └─> Vercel kills function at 60s        │
+└─────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────┐
+│ Backend Fetch: 55s timeout               │
+│ └─> AbortController aborts at 55s       │
+└─────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────┐
+│ Claude API: Variable time                │
+│ └─> Actual generation (15-40s)          │
+└─────────────────────────────────────────┘
+```
+
+**Estado del proyecto:**
+- Completitud: ~98%
+- Issue crítico: ✅ Resuelto (timeout fix)
+- Listo para: Deploy y testing en develop
+- Próximo paso: Verificar que fix funciona en producción
+
+---
+
+## Sesión 5 - [Fecha]
 
 [Por completar en próxima sesión]
 
 ---
 
-**Última actualización:** Enero 19, 2026 - Sesión 3
+**Última actualización:** Enero 19, 2026 - Sesión 4

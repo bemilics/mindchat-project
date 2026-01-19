@@ -198,7 +198,7 @@ Para CADA UNA de las 8 voces genera:
 
     // Llamar a Claude API con timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 segundos timeout
+    const timeoutId = setTimeout(() => controller.abort(), 55000); // 55 segundos timeout
 
     try {
       var response = await fetch('https://api.anthropic.com/v1/messages', {
