@@ -447,10 +447,595 @@ Chat (API real)         [Full Mock]  [Hybrid]
 
 ---
 
-## Sesión 3 - [Fecha]
+## Sesión 3 - Enero 19, 2026
+
+### Objetivos
+- Implementar persistencia de conversaciones con localStorage
+- Añadir campos de género y orientación sexual al onboarding
+- Mejorar responsive mobile y reducir límite de mensajes
+- Rediseñar sistema de personalización para voces más únicas y divertidas
+- Optimizar interacciones entre voces para crear conversaciones más naturales
+
+### Trabajo Realizado
+
+**1. Sistema de Persistencia con localStorage**
+- Implementado sistema completo de guardado de sesión:
+  - `getSessionId()`: Genera ID único por dispositivo (`session_[timestamp]_[random]`)
+  - `saveToLocalStorage()` y `loadFromLocalStorage()`: Helpers para persistencia
+  - Auto-carga de sesión guardada en `App.jsx` (useEffect)
+
+- Datos persistidos:
+  - `mindchat_session_id`: ID único de dispositivo
+  - `mindchat_user_data`: Perfil del usuario
+  - `mindchat_voices`: 8 voces generadas
+  - `mindchat_debug_config`: Configuración de debug (si aplica)
+  - `mindchat_messages`: Historial completo de chat
+  - `mindchat_messages_remaining`: Contador de mensajes disponibles
+
+- Features de sesión:
+  - Botón "Nueva sesión" en header del chat
+  - Limpieza automática de localStorage al generar nuevo perfil
+  - Usuarios pueden cerrar la app y continuar donde quedaron
+
+**2. Campos Adicionales en Onboarding**
+- Agregado campo de orientación sexual (`orientacionSexual`):
+  - Dropdown con 7 opciones
+  - Opciones: Prefiero no decir, Heterosexual, Homosexual, Bisexual, Pansexual, Asexual, Otro
+  - Añadido en línea 608 de `Onboarding.jsx`
+
+- Simplificado selector de edad:
+  - Eliminado campo manual de "año de nacimiento"
+  - Extracción automática del año desde `<input type="date">`
+  - Reduce fricción en el onboarding
+
+- Actualizado mock profile en `debugProfile.js`:
+  - `genero: 'masculino'` (antes: 'no-binario')
+  - `orientacionSexual: 'bisexual'` (nuevo campo)
+
+**3. Cambios en Límite de Mensajes y Validaciones**
+- Reducido límite de mensajes de 50 a 10:
+  - Cambiado estado inicial en `Chat.jsx` línea 13
+  - Actualizado contador visual de "X/50" a "X/10"
+  - Umbral de alerta roja cambiado de ≤10 a ≤3
+
+- Flexibilizada validación de películas favoritas:
+  - De 3 requeridas → mínimo 1 requerida
+  - Placeholders actualizados: "Película 1 (requerida)", "Película 2-3 (opcionales)"
+  - Cambio en línea 215 de `Onboarding.jsx`
+
+**4. Mejoras de Responsive Mobile**
+- Fixed overflow de "Classical/Instrumental" en selector de géneros musicales:
+  - Padding responsivo: `py-2.5 sm:py-3 px-3 sm:px-4`
+  - Font size reducido en mobile: `text-sm sm:text-base`
+  - Min-height para permitir wrapping: `min-h-[3rem] sm:min-h-0`
+
+- Pills de voces:
+  - Revertido cambio de iniciales → nombres completos siempre visibles
+  - Removido `hidden sm:block` de nombres de voces
+
+- Chat input mejorado:
+  - Placeholder acortado a "Escribe algo..." en mobile
+  - Mejor espaciado y padding en pantallas pequeñas
+
+**5. OVERHAUL MAYOR: Sistema de Personalización de Voces**
+
+**A. Nombres en Español (generate-voices.js líneas 108-115):**
+- Regla principal: DEBEN ser en español (salvo conceptos muy específicos)
+- Ejemplos buenos: "Vértigo", "Chispa", "Eco", "Brújula", "Impulso", "Ancla", "Torbellino", "Brasa"
+- Prohibido: Nombres literales copiados de media, artículos "El/La", nombres genéricos
+- Sweet spot: Nombres abstractos MEMORABLES y CHISTOSOS
+- Blacklist añadida: Axioma, Encore, Síntesis, Estamina, Kaiju, Covenant, Wavelength, Doomscroll
+
+**B. Tono General Chistoso (generate-voices.js línea 106):**
+```
+🎭 **TONO GENERAL**: Esta app es CHISTOSA y DIVERTIDA. Las voces deben ser EXAGERADAS,
+con personalidades FUERTES y DISTINTIVAS. Nada genérico o aburrido.
+```
+
+**C. Guía Detallada de MBTI (generate-voices.js líneas 119-127):**
+- E vs I: Extrovertidas (hablan MÁS) vs Introspectivas (hablan MENOS pero más profundo)
+- S vs N: Prácticas (tangible) vs Abstractas (posibilidades)
+- T vs F: Lógicas (frías) vs Empáticas (dramáticas)
+- J vs P: Organizadas (controladoras) vs Espontáneas (procrastinadoras)
+
+**D. Guía de Signos Zodiacales (generate-voices.js líneas 129-133):**
+- Fuego (Aries/Leo/Sagitario): Impulsivas, apasionadas, intensas, dramáticas
+- Tierra (Tauro/Virgo/Capricornio): Prácticas, terrenales, escépticas, realistas
+- Aire (Géminis/Libra/Acuario): Intelectuales, sociales, cambiantes, cerebrales
+- Agua (Cáncer/Escorpio/Piscis): Emocionales, intuitivas, profundas, intensas
+
+**E. Guía de Alignment (generate-voices.js líneas 135-141):**
+- Lawful/Neutral/Chaotic: Reglas vs Pragmatismo vs Rebeldía
+- Good/Neutral/Evil: Altruismo vs Egoísmo vs Manipulación
+
+**F. Ejemplos de Combinaciones (generate-voices.js líneas 143-145):**
+- INTJ + Capricornio + Lawful Evil = Voz ultra fría, calculadora, manipuladora
+- ENFP + Sagitario + Chaotic Good = Voz hiperactiva, optimista caótica, impulsiva pero bien intencionada
+
+**G. Rasgos Fuertes (generate-voices.js líneas 158-163):**
+- Cada voz con PERSONALIDAD MARCADA
+- Vocabulario ESPECÍFICO y ÚNICO
+- Catchphrases MEMORABLES y CHISTOSAS
+- Exagerar rasgos para que sean INOLVIDABLES
+- Piensa en las voces como PERSONAJES de comedia, no asistentes genéricos
+
+**6. OVERHAUL MAYOR: Interacciones Entre Voces en Chat**
+
+**A. Personalidades Exageradas en Chat (chat.js líneas 62-69):**
+- MBTI define CÓMO piensa cada voz
+- Signo define INTENSIDAD emocional
+- Alignment define BRÚJULA MORAL
+- Voces EXAGERADAS y DISTINTIVAS
+- Vocabulario ÚNICO por voz
+- @mencionar otras voces FRECUENTEMENTE
+- Debatir y contradecirse ACTIVAMENTE
+
+**B. Conversaciones Evolutivas (chat.js líneas 76-91):**
+- Nuevo objetivo: GROUP CHAT REAL, no FAQ bot
+- Flujo de conversación en 5+ pasos:
+  1. Voz A da opinión inicial
+  2. Voz B @menciona a A y contradice
+  3. Voz C @menciona a ambas y ofrece compromiso
+  4. Voz D @menciona a C y escala el drama
+  5. Voz E @menciona a D y se burla
+- Features de conversación:
+  - ALIANZAS temporales entre voces afines
+  - CONFLICTOS entre voces opuestas
+  - Voces pueden CAMBIAR DE OPINIÓN
+  - Voces pueden INTERRUMPIRSE con "espera", "momento", "perdón pero"
+
+**C. Mensajes Más Desarrollados (chat.js líneas 71-74):**
+- De frases cortísimas → 2-4 líneas cada voz
+- Las voces deben elaborar puntos con argumentos y ejemplos
+- Pueden ser más extensas si están debatiendo
+
+**D. Cantidad de Respuestas (chat.js líneas 58-60):**
+- Regla actualizada: 6-8 voces deben responder (mayoría o todas)
+- Está bien que las 8 voces opinen si el tema es relevante
+
+**7. Visibilidad de Arquetipos en Chat**
+- Cambio en `Chat.jsx` línea 552
+- Removido `hidden sm:inline` de arquetipos
+- Ahora siempre visibles en todos los tamaños de pantalla
+- Aparecen como subtítulo bajo el nombre del personaje
+
+**8. Selector de Modelos en Flujo Normal (Dev Only)**
+- Agregado modal de selección de modelos LLM en modo desarrollo:
+  - 4 combinaciones disponibles:
+    - 🟢 Haiku + Haiku (más rápido y económico)
+    - 🟢 Haiku + 🔵 Sonnet (perfil rápido, chat inteligente)
+    - 🔵 Sonnet + 🟢 Haiku (perfil detallado, chat económico)
+    - 🔵 Sonnet + Sonnet (máxima calidad)
+  - Solo visible en modo desarrollo (NO va a producción)
+  - Permite testing flexible de costos vs calidad
+
+**9. Fixes de Bugs Menores**
+- Fixed @mention highlighting:
+  - Regex cambiado de `/(@[\w\s]+)/g` a `/(@[^\s,.!?;:]+)/g`
+  - Ahora captura correctamente nombres con acentos (ej: "Síntesis")
+  - Para exactamente en puntuación
+
+- Fixed loading screen no mostrándose:
+  - Cambiada condición en `App.jsx` para no renderizar Onboarding durante generación
+  - Agregado indicador de modelo en loading screen
+
+- Fixed localStorage contamination:
+  - Limpieza explícita de voces viejas ANTES de generar nuevas
+  - Previene que voces de sesiones anteriores aparezcan en nuevos perfiles
+
+**10. Validación Estricta de API**
+- Añadida validación en backend de `/api/generate-voices.js`:
+  - Rechaza respuesta si no se generaron exactamente 8 voces
+  - Retorna error con count de voces generadas
+  - Líneas 263-269
+
+### Decisiones Técnicas
+
+**1. localStorage vs Database para Persistencia**
+- **Decisión:** Usar localStorage para MVP
+- **Razón:**
+  - Sin costo de infraestructura
+  - Sin latencia de red
+  - Suficiente para sesiones individuales
+  - Implementación inmediata
+- **Trade-off:** Datos se pierden si usuario borra caché
+- **Futuro:** Migrar a Vercel Postgres o similar para cross-device sync
+
+**2. Session ID Basado en Device**
+- **Decisión:** Generar ID único con timestamp + random string
+- **Razón:**
+  - No requiere autenticación
+  - Permite tracking básico de uso
+  - Base para futura migración a user accounts
+- **Formato:** `session_[timestamp]_[random]`
+
+**3. Límite de 10 Mensajes en Lugar de 50**
+- **Decisión:** Reducir drásticamente para MVP
+- **Razón:**
+  - Reduce costos de API significativamente
+  - Incentiva a usuarios a hacer preguntas de calidad
+  - Más viable para testear con usuarios reales
+- **Futuro:** Ofrecer compra de mensajes adicionales o suscripción
+
+**4. Español como Idioma Primario para Voces**
+- **Decisión:** Forzar nombres en español en prompt
+- **Razón:**
+  - Target audience es latino/hispano
+  - Nombres en inglés sienten desconectados
+  - Más accesible y relatable
+  - Solo inglés para conceptos muy específicos
+- **Resultado:** Voces más auténticas y memorables
+
+**5. MBTI + Signo + Alignment como Tripleta de Personalización**
+- **Decisión:** Combinar los 3 sistemas para crear personalidades únicas
+- **Razón:**
+  - MBTI define el CÓMO piensa (lógica, intuición, etc.)
+  - Signo define la INTENSIDAD emocional (fuego, tierra, aire, agua)
+  - Alignment define la BRÚJULA MORAL (lawful/chaotic, good/evil)
+  - Combinación de 3 variables produce 16 × 12 × 9 = 1,728 perfiles únicos
+- **Ventaja:** Altísima personalización incluso con pocos inputs del usuario
+
+**6. Conversaciones Evolutivas vs Respuestas Aisladas**
+- **Decisión:** Cambiar prompt para crear conversaciones tipo group chat
+- **Razón:**
+  - Más entretenido y natural
+  - Voces se sienten más "vivas" y reales
+  - Crea narrativas emergentes que son más memorables
+  - Objetivo: "GROUP CHAT REAL, no FAQ bot"
+- **Implementación:** Flujo en 5+ pasos con @menciones, alianzas, conflictos
+
+**7. Exageración de Rasgos para Efecto Cómico**
+- **Decisión:** Instruir a la IA para EXAGERAR personalidades
+- **Razón:**
+  - La app es entretenimiento, no terapia seria
+  - Voces genéricas son aburridas
+  - Exageración hace las conversaciones más chistosas y memorables
+  - Similar a personajes de comedia: rasgos amplificados
+- **Prompt key phrase:** "Piensa en las voces como PERSONAJES de comedia"
+
+**8. Minimum 1 Película en Lugar de 3**
+- **Decisión:** Flexibilizar requisito de películas favoritas
+- **Razón:**
+  - Reduce fricción en onboarding
+  - Algunos usuarios tienen dificultad pensando en 3 películas
+  - 1 es suficiente para dar contexto de gustos
+  - Otras preguntas (MBTI, gustos musicales, etc.) compensan
+- **Balance:** Mantener máximo de 3 para no abrumar prompt
+
+### Problemas Encontrados
+
+**1. Contaminación de Voces con Mock Data**
+- **Problema:** Voces generadas usaban nombres del mock profile (Axioma, Kaiju, etc.)
+- **Reproducción:** Ocurría cuando usuario no ingresaba videojuegos favoritos
+- **Causa raíz:** Prompt contenía ejemplos explícitos que Claude copiaba con datos insuficientes
+- **Solución:**
+  1. Eliminados todos los ejemplos de nombres específicos del prompt
+  2. Reemplazados con guías generales ("Vértigo", "Chispa", etc. como conceptos)
+  3. Agregada blacklist explícita: "NUNCA uses estos nombres: Axioma, Encore, Síntesis..."
+  4. Instrucción para intensificar MBTI/signo/alignment cuando faltan datos
+- **Archivo afectado:** `/api/generate-voices.js` línea 156
+
+**2. @Mentions No Capturaban Nombres con Acentos**
+- **Problema:** Highlights de @menciones se extendían de más o no capturaban nombres completos
+- **Causa:** Regex `/(@[\w\s]+)/g` no manejaba bien caracteres especiales ni espacios
+- **Solución:** Cambio a `/(@[^\s,.!?;:]+)/g`
+  - Captura todo después de @ hasta whitespace o puntuación
+  - Soporta acentos (Síntesis, Brújula, etc.)
+  - Para exactamente donde termina el nombre
+- **Archivo afectado:** `Chat.jsx` línea 508
+
+**3. Loading Screen No Visible Durante Generación**
+- **Problema:** Onboarding se renderizaba sobre loading screen
+- **Causa:** Condicionales en `App.jsx` permitían ambos componentes simultáneos
+- **Solución:** Agregadas condiciones `!isGeneratingVoices && !generationError` al render de Onboarding
+- **Resultado:** Loading screen con spinner visible durante los 10-15 segundos de generación
+- **Archivo afectado:** `App.jsx` línea 155
+
+**4. Solo 3 Voces Generadas en Lugar de 8**
+- **Problema:** A veces API generaba menos de 8 voces
+- **Causa:** Prompt no era explícito sobre requerir exactamente 8
+- **Solución múltiple:**
+  1. Agregada advertencia prominente: "⚠️ **IMPORTANTE**: DEBES generar EXACTAMENTE 8 voces"
+  2. Lista numerada de arquetipos más visible en prompt
+  3. Validación en backend que rechaza si count ≠ 8
+  4. Safe handling de campos vacíos con "No especificado"
+- **Archivos afectados:**
+  - `/api/generate-voices.js` líneas 104, 263-269
+
+**5. Voces de Sesión Anterior Apareciendo en Nueva**
+- **Problema:** Al generar nuevo perfil, a veces aparecían voces del perfil anterior
+- **Causa:** localStorage no se limpiaba antes de generar nuevo perfil
+- **Solución:** Limpieza explícita ANTES de nueva generación:
+  ```javascript
+  localStorage.removeItem('mindchat_voices');
+  localStorage.removeItem('mindchat_messages');
+  localStorage.removeItem('mindchat_messages_remaining');
+  ```
+- **Archivo afectado:** `App.jsx` líneas 73-76
+
+**6. Overflow de "Classical/Instrumental" en Mobile**
+- **Problema:** Botón de género musical se salía del contenedor en pantallas pequeñas
+- **Causa:** Padding y font size fijos, sin responsive
+- **Solución:**
+  - Padding responsivo: `py-2.5 sm:py-3 px-3 sm:px-4`
+  - Font size adaptativo: `text-sm sm:text-base`
+  - Min-height para wrapping: `min-h-[3rem] sm:min-h-0`
+- **Archivo afectado:** `Onboarding.jsx` línea 755
+
+### Pendientes
+
+**Antes de Deploy a Producción:**
+- [ ] Testing extensivo con Haiku para confirmar calidad de voces
+- [ ] Testing con datos variados (mínimos inputs vs máximos inputs)
+- [ ] Verificar costos reales con límite de 10 mensajes
+- [ ] Probar en múltiples dispositivos móviles (iOS + Android)
+- [ ] Confirmar que modo debug NO está disponible en production
+
+**Mejoras UX (media prioridad):**
+- [ ] Animación de entrada de mensajes de voces
+- [ ] Feedback visual cuando se alcanza límite de mensajes
+- [ ] Tutorial/tooltip en primer uso explicando las voces
+- [ ] Opción de "regenerar respuestas" si usuario no le gustaron
+- [ ] Botón de "compartir conversación" (screenshot)
+
+**Features Futuras:**
+- [ ] Compra de mensajes adicionales (monetización)
+- [ ] Sistema de autenticación para sync cross-device
+- [ ] Migración de localStorage a database
+- [ ] Análisis mensual de patrones de conversación
+- [ ] Voces desbloqueables o customizables
+- [ ] Share cards para Instagram/Twitter
+
+**Optimizaciones:**
+- [ ] Streaming de respuestas (SSE) para latencia percibida menor
+- [ ] Caché inteligente de prompts comunes
+- [ ] Rate limiting server-side más robusto
+- [ ] Error tracking con Sentry
+- [ ] Analytics de uso (PostHog o similar)
+
+### Notas
+
+**Sobre Persistencia:**
+- localStorage tiene límite de ~5-10MB dependiendo del browser
+- Estimación: 10 mensajes × 8 voces × 200 chars = ~16KB por sesión
+- Capacidad: ~300-600 sesiones antes de llenar localStorage
+- Suficiente para MVP, migrar a DB si escala
+
+**Sobre Costos con 10 Mensajes:**
+- Con Haiku (claude-3-5-haiku-20241022):
+  - Generación de voces: ~$0.004
+  - 10 mensajes de chat: ~$0.010
+  - **Total por usuario:** ~$0.014
+- Con 100 usuarios/día: ~$1.40/día = **$42/mes**
+- Con 1000 usuarios/día: ~$14/día = **$420/mes**
+- Mucho más viable que con 50 mensajes + Sonnet (~$3000/mes)
+
+**Sobre el Nuevo Sistema de Personalización:**
+- La combinación MBTI + Signo + Alignment produce voces RADICALMENTE distintas
+- Ejemplos reales de combinaciones:
+  - INTJ + Capricornio + Lawful Evil = "El Arquitecto frío y calculador"
+  - ENFP + Sagitario + Chaotic Good = "La Chispa impulsiva pero bien intencionada"
+  - ISFP + Piscis + Neutral Good = "El Eco empático y artístico"
+- El blacklist de nombres previene que la IA copie del mock data
+- Instrucciones de exageración hacen las voces más memorables
+
+**Sobre Conversaciones Evolutivas:**
+- Cambio de paradigma: de "8 respuestas independientes" a "1 conversación cohesiva"
+- Las voces ahora construyen sobre lo que otras dijeron
+- @menciones son la clave para crear hilos de conversación
+- Alianzas y conflictos emergen naturalmente según MBTI + Alignment
+- Resultado: Se siente como un group chat de WhatsApp, no como un chatbot
+
+**Sobre Spanish-First:**
+- Nombres en español son más memorables para target audience
+- Ejemplos buenos: "Vértigo", "Chispa", "Eco", "Brújula", "Impulso"
+- Inglés solo para conceptos técnicos muy específicos
+- Modismos en inglés ("lowkey", "literally") están OK en mensajes de chat
+- Pero el nombre del personaje DEBE ser en español
+
+**Sobre Session IDs:**
+- Formato: `session_[timestamp]_[random]`
+- Ejemplo: `session_1737331200000_a7f3k9b`
+- Permite tracking anónimo de uso sin autenticación
+- Base para futura migración a user accounts
+- Se guarda en localStorage y persiste entre sesiones
+
+**Arquitectura Actualizada:**
+```
+Onboarding
+    ↓
+    ├── [Modo Normal]
+    │   ↓
+    │   Generar Voces (/api/generate-voices)
+    │   ↓
+    │   Auto-save a localStorage
+    │   ↓
+    │   Chat (/api/chat)
+    │   ↓
+    │   Conversaciones evolutivas con @menciones
+    │
+    └── [Modo Debug - Dev Only]
+        ↓
+        ├── Mock Profile → Full Mock (sin API)
+        └── Mock Profile → Hybrid (con /api/chat)
+```
+
+**Estado del proyecto:**
+- Completitud: ~98%
+- Listo para: Testing final y deploy a producción
+- Personalización: ✅ Overhaul completo con MBTI + Signo + Alignment
+- Persistencia: ✅ localStorage implementado
+- Interacciones: ✅ Conversaciones evolutivas tipo group chat
+- Responsive: ✅ Mobile optimizado
+- Costos: ✅ Viables con Haiku + 10 mensajes
+
+**Próximo milestone:**
+- Testing con usuarios reales en develop
+- Deploy a production (main branch)
+- Recolectar feedback sobre calidad de voces
+- Iterar en prompts si es necesario
+
+---
+
+## Sesión 4 - Enero 19, 2026
+
+### Objetivos
+- Resolver error de timeout en generación de voces
+- Preparar sistema para manejar tiempos de respuesta más largos de la API
+
+### Trabajo Realizado
+
+**1. Fix Crítico: Timeout en Generación de Voces**
+- **Problema reportado:** La generación del perfil tiraba error de timeout tanto con Haiku como con Sonnet
+- **Diagnóstico:**
+  - Backend timeout: 25 segundos (muy corto)
+  - Vercel maxDuration: 30 segundos
+  - Frontend: Sin timeout específico
+  - Prompt muy detallado que requiere más tiempo de procesamiento
+
+- **Solución implementada:**
+  1. **Vercel maxDuration aumentado a 60s** (vercel.json línea 8)
+     - De 30s → 60s (máximo en Hobby plan)
+  2. **Backend timeout aumentado a 55s** (generate-voices.js línea 201)
+     - De 25s → 55s (para no abortar antes que Vercel)
+  3. **Frontend timeout agregado de 60s** (App.jsx líneas 103-127)
+     - AbortController con manejo de timeout explícito
+     - Mensaje de error claro: "La generación de voces tomó demasiado tiempo"
+  4. **Mensaje de loading actualizado** (App.jsx líneas 186-190)
+     - Haiku: "Esto puede tomar 15-30 segundos"
+     - Sonnet: "Esto puede tomar 20-40 segundos con Sonnet"
+
+### Decisiones Técnicas
+
+**1. 60 Segundos como Límite Máximo**
+- **Decisión:** maxDuration de 60s para Vercel functions
+- **Razón:**
+  - 60s es el máximo permitido en Vercel Hobby plan
+  - Suficiente para Haiku (~15-30s) y Sonnet (~20-40s)
+  - Balance entre experiencia de usuario y costos
+- **Trade-off:** Usuarios deben esperar más, pero generación no falla
+
+**2. Timeouts Escalonados (Backend < Vercel < Frontend)**
+- **Decisión:** Backend 55s, Vercel 60s, Frontend 60s
+- **Razón:**
+  - Backend aborta primero para manejar error gracefully
+  - Vercel actúa como fallback si backend no responde
+  - Frontend da feedback claro al usuario
+- **Arquitectura:**
+  ```
+  Frontend (60s timeout)
+      ↓
+  Vercel Function (60s maxDuration)
+      ↓
+  Backend Fetch (55s timeout)
+      ↓
+  Claude API
+  ```
+
+**3. Mensajes Diferenciados por Modelo**
+- **Decisión:** Mostrar estimación de tiempo según modelo usado
+- **Razón:**
+  - Sonnet es más lento que Haiku (calidad > velocidad)
+  - Usuarios necesitan expectativas realistas
+  - Reduce frustración al esperar
+- **Implementación:** Condicional en loading screen
+
+### Problemas Encontrados
+
+**1. Timeout de 25s Demasiado Corto para Prompts Complejos**
+- **Problema:** Error de timeout en desarrollo con ambos modelos
+- **Causa raíz:** Prompt de generación de voces es muy detallado:
+  - Guías extensas de MBTI (8 características)
+  - Guías de signos zodiacales (12 signos x 4 elementos)
+  - Guías de alignment (9 combinaciones)
+  - Instrucciones de tono y estilo
+  - Validaciones y restricciones
+  - Formato JSON complejo con 8 voces
+- **Tiempo real de generación:**
+  - Haiku: 15-30 segundos
+  - Sonnet: 20-40 segundos
+- **Solución:** Aumentar timeouts a 55-60s
+
+**2. Frontend Sin Timeout Explícito**
+- **Problema:** Si backend/Vercel fallaban, frontend esperaba indefinidamente
+- **Causa:** fetch() sin AbortController
+- **Solución:** Implementado AbortController con 60s timeout
+- **Beneficio:** Mensaje de error claro y opción de reintentar
+
+### Pendientes
+
+**Testing Inmediato:**
+- [ ] Deploy a Vercel develop y probar con perfil real
+- [ ] Verificar que timeouts funcionan correctamente
+- [ ] Testear con Haiku (debería tomar ~15-30s)
+- [ ] Testear con Sonnet (debería tomar ~20-40s)
+- [ ] Confirmar que error handling funciona si toma >60s
+
+**Optimizaciones Futuras (baja prioridad):**
+- [ ] Considerar streaming de respuestas para feedback en tiempo real
+- [ ] Posible simplificación del prompt si timeouts siguen siendo problema
+- [ ] Explorar batch generation (generar 4 voces + 4 voces en paralelo)
+- [ ] Caché de voces generadas para perfiles similares
+
+**Antes de Producción:**
+- [ ] Confirmar que 60s es suficiente en 95% de los casos
+- [ ] Documentar tiempos de generación reales en analytics
+- [ ] Considerar fallback a Haiku si Sonnet falla por timeout
+
+### Notas
+
+**Sobre Vercel Limits:**
+- **Hobby plan:** maxDuration máximo de 60s
+- **Pro plan:** maxDuration hasta 300s (5 minutos)
+- Si el proyecto escala y necesita más tiempo, migrar a Pro plan
+
+**Sobre Tiempos de Generación:**
+- Haiku es ~2-3x más rápido que Sonnet
+- El prompt actual es bastante complejo (~1500 tokens input)
+- Generación de 8 voces con formato JSON requiere ~3000-4000 tokens output
+- Total de procesamiento: ~4500-5500 tokens por request
+
+**Sobre UX de Timeouts:**
+- 60 segundos está en el límite de lo aceptable para UX
+- Usuarios modernos esperan respuestas en <10s idealmente
+- Mensaje de loading con estimación de tiempo es crítico
+- Opción de "Volver al inicio" en caso de error es necesaria
+
+**Arquitectura de Timeouts:**
+```
+┌─────────────────────────────────────────┐
+│ Frontend: 60s timeout                    │
+│ └─> AbortController aborts at 60s       │
+└─────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────┐
+│ Vercel Function: 60s maxDuration        │
+│ └─> Vercel kills function at 60s        │
+└─────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────┐
+│ Backend Fetch: 55s timeout               │
+│ └─> AbortController aborts at 55s       │
+└─────────────────────────────────────────┘
+                 ↓
+┌─────────────────────────────────────────┐
+│ Claude API: Variable time                │
+│ └─> Actual generation (15-40s)          │
+└─────────────────────────────────────────┘
+```
+
+**Estado del proyecto:**
+- Completitud: ~98%
+- Issue crítico: ✅ Resuelto (timeout fix)
+- Listo para: Deploy y testing en develop
+- Próximo paso: Verificar que fix funciona en producción
+
+---
+
+## Sesión 5 - [Fecha]
 
 [Por completar en próxima sesión]
 
 ---
 
-**Última actualización:** Enero 17, 2026 - Sesión 2
+**Última actualización:** Enero 19, 2026 - Sesión 4

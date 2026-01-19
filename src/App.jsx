@@ -100,16 +100,31 @@ function App() {
       // Determinar qué modelo usar para generar el perfil
       const modelToUse = config?.profileModel || 'haiku' // Default: haiku
 
-      const response = await fetch('/api/generate-voices', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          userData: data,
-          model: modelToUse // Pasamos el modelo específico
+      // Crear AbortController para timeout
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60000) // 60 segundos timeout
+
+      try {
+        var response = await fetch('/api/generate-voices', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userData: data,
+            model: modelToUse // Pasamos el modelo específico
+          }),
+          signal: controller.signal
         })
-      })
+      } catch (fetchError) {
+        clearTimeout(timeoutId)
+        if (fetchError.name === 'AbortError') {
+          throw new Error('La generación de voces tomó demasiado tiempo. Por favor intenta de nuevo.')
+        }
+        throw fetchError
+      } finally {
+        clearTimeout(timeoutId)
+      }
 
       if (!response.ok) {
         const errorData = await response.json()
@@ -168,7 +183,11 @@ function App() {
             <div className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
               Generando tus voces internas...
             </div>
-            <p className="text-gray-400 text-sm">Esto puede tomar 10-15 segundos</p>
+            <p className="text-gray-400 text-sm">
+              {debugConfig?.profileModel === 'sonnet'
+                ? 'Esto puede tomar 20-40 segundos con Sonnet'
+                : 'Esto puede tomar 15-30 segundos'}
+            </p>
             {debugConfig && (
               <p className="text-xs text-gray-500 mt-2">
                 Modelo: {debugConfig.profileModel === 'sonnet' ? '🔵 Sonnet' : '🟢 Haiku'}
